@@ -275,7 +275,7 @@ TrackLib.Events = {
       // target should not be a text node (Safari bug)
       if (e.target.nodeType == 3) e.target = e.target.parentNode;
       // for mouse/key events; add metaKey if it's not there (IE 6/7/8)
-  		if (typeof e.metaKey === 'undefined') e.metaKey = e.ctrlKey;
+      if (typeof e.metaKey === 'undefined') e.metaKey = e.ctrlKey;
 
       return e;
     }

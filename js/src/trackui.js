@@ -151,18 +151,11 @@ var TrackUI = {
   touchHandler: function(e) {
     e = TrackLib.Events.fix(e);
     
-    var touch = e.touches[0] || e.targetTouches[0]; // || e.changedTouches[0]
-    // remove (emulated) mouse events on mobile devices and bind them to mouse callbacks
-    switch(e.type) {
-      case "touchstart": 
-      case "touchmove":
-      case "touchend":
-        TrackLib.Events.remove(document, e.type, TrackUI.eventHandler);
-        TrackUI.eventHandler(touch);
-        break;
-      default: 
-        return;
-    }  
+    var touch = e.touches[0] || e.targetTouches[0] || e.changedTouches[0];
+    if (touch) {
+      touch.type = e.type;
+      TrackUI.eventHandler(touch);
+    }
   }, 
   /** 
    * Cross-browser way to register the mouse position.
