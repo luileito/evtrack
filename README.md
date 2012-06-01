@@ -1,4 +1,4 @@
 evtrack
 =======
 
-Event tracking on web browsers
+Event tracking on websites using plain old JavaScript.
