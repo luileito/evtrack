@@ -287,7 +287,9 @@ TrackLib.Events = {
 TrackLib.Dimension = {
   /**
    * Gets the browser's window size (aka 'the viewport').
-   * @return {object} window dimmensions - object with 2 properties: width {integer}, and height {integer}
+   * @return {object} window dimmensions
+   *    @config {integer} width
+   *    @config {integer} height
    */
   getWindowSize: function() {
     var d = document;
@@ -303,7 +305,9 @@ TrackLib.Dimension = {
   },
   /**
    * Gets the document's size.
-   * @return {object} document dimensions - object with 2 properties: width {integer}, and height {integer}
+   * @return {object} document dimensions
+   *    @config {integer} width
+   *    @config {integer} height   
    */
   getDocumentSize: function() {
     var d = document;
@@ -320,7 +324,9 @@ TrackLib.Dimension = {
   },
   /**
    * Gets the max value from both window (viewport's size) and document's size.
-   * @return {object} viewport dimensions - object with 2 properties: width {integer}, and height {integer}
+   * @return {object} viewport dimensions
+   *    @config {integer} width
+   *    @config {integer} height   
    */
   getPageSize: function()
   {
@@ -360,7 +366,7 @@ TrackLib.Util = {
    */
   getDomain: function(url) {
     var l = document.createElement("a");
-    l.href = href;
+    l.href = url;
     return l.hostname;
   }
 
