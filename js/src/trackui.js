@@ -8,22 +8,22 @@
  * @license Dual licensed under the MIT and GPL licenses.
  */
 var TrackUI = {
-  /** 
+  /**
    * Default settings -- can be overriden on init.
    */
   settings: {
     postServer: "http://my.server.org/save.script",
     postInterval: 10
-  }, 
-  /** 
+  },
+  /**
    * Unique user ID.
    */
-  uid: 0, 
-  /** 
+  uid: 0,
+  /**
    * Registered information is timestamp, xpos, ypos, event, element
    */
   info: [],
-  /** 
+  /**
    * Registers event listeners.
    * @return void
    */
@@ -32,13 +32,13 @@ var TrackUI = {
     for (var prop in this.settings) if (config.hasOwnProperty(prop) && config[prop] !== null) {
       this.settings[prop] = config[prop];
     }
-
+    
     var mouseEvts = ["mousedown", "mouseup", "mousemove", "click", "scroll", "mousewheel"],
         touchEvts = ["touchstart", "touchend", "touchmove"],
         keyEvts = ["keydown", "keyup", "keypress"],
         winEvts = ["blur", "focus", "resize"],
         i;
-        
+    
     for (i = 0; i < mouseEvts.length; ++i) TrackLib.Events.add(document, mouseEvts[i], TrackUI.mouseHandler);
     for (i = 0; i < touchEvts.length; ++i) TrackLib.Events.add(document, touchEvts[i], TrackUI.touchHandler);
     for (i = 0; i < keyEvts.length; ++i) TrackLib.Events.add(document, keyEvts[i], TrackUI.keyHandler);
@@ -50,7 +50,7 @@ var TrackUI = {
       TrackLib.Events.add(document.body, "focusin",  TrackUI.winHandler);
     }
     setTimeout(TrackUI.initNewData, config.postInterval*1000);
-
+    
     var unload = (typeof window.onbeforeunload === 'function') ? "beforeunload" : "unload";
     TrackLib.Events.add(window, unload, TrackUI.flush);
   },
@@ -87,7 +87,7 @@ var TrackUI = {
     if (TrackUI.uid) {
       setInterval(TrackUI.appendData, TrackUI.settings.postInterval*1000);
     }
-  }, 
+  },
   /**
    * Continues saving data for the same (previous) user.
    */
@@ -100,8 +100,8 @@ var TrackUI = {
       postdata: data
     });
     // clean up
-    TrackUI.info = [];  
-  }, 
+    TrackUI.info = [];
+  },
   /**
    * A common sending method with CORS support.
    */
@@ -109,32 +109,32 @@ var TrackUI = {
     req.url = TrackUI.settings.postServer;
     req.async = false;
     TrackLib.XHR.sendAjaxRequest(req);
-  }, 
+  },
   /**
    * Handles mouse events.
    * @param {object}  e Event.
-   * @return void     
+   * @return void
    */
   mouseHandler: function(e) {
-    TrackUI.eventHandler(e);    
-  }, 
+    TrackUI.eventHandler(e);
+  },
   /**
    * Handles keyboard events.
-   * @param {object}  e Event.     
-   * @return void     
-   */    
+   * @param {object}  e Event.
+   * @return void
+   */
   keyHandler: function(e) {
-    TrackUI.eventHandler(e);    
+    TrackUI.eventHandler(e);
   },
   /**
    * Handles window events.
-   * @param {object}  e Event.     
-   * @return void     
-   */    
+   * @param {object}  e Event.
+   * @return void
+   */
   winHandler: function(e) {
     TrackUI.eventHandler(e);
-  },  
-  /** 
+  },
+  /**
    * Generic callback for event listeners.
    * @return void
    */
@@ -143,11 +143,11 @@ var TrackUI = {
     
     var coords = TrackUI.getMousePos(e), elem = TrackUI.findElement(e);
     TrackUI.fillInfo(coords.x, coords.y, e.type, elem);
-  }, 
-  /** 
+  },
+  /**
    * Callback for touch event listeners.
    * @return void
-   */  
+   */
   touchHandler: function(e) {
     e = TrackLib.Events.fix(e);
     
@@ -156,8 +156,8 @@ var TrackUI = {
       touch.type = e.type;
       TrackUI.eventHandler(touch);
     }
-  }, 
-  /** 
+  },
+  /**
    * Cross-browser way to register the mouse position.
    * @return {object} Coordinates
    *   @config {int} x Horizontal component
@@ -170,17 +170,17 @@ var TrackUI = {
     if (e.pageX || e.pageY) {
       cx = e.pageX;
       cy = e.pageY;
-    }	else if (e.clientX || e.clientY) {
+    } else if (e.clientX || e.clientY) {
       cx = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
       cy = e.clientY + document.body.scrollTop  + document.documentElement.scrollTop;
     }
     // sometimes the mouse coordinates are negative (e.g., in Opera)
     if (!cx || cx < 0) cx = 0;
     if (!cy || cy < 0) cy = 0;
-
-  	return { x:cx, y:cy };
-  }, 
-  /** 
+    
+    return { x:cx, y:cy };
+  },
+  /**
    * Gets the interacted element.
    * @return {string} XPath
    */
@@ -188,8 +188,8 @@ var TrackUI = {
     e = TrackLib.Events.fix(e);
     
     return TrackLib.XPath.getXPath(e.target);
-  }, 
-  /** 
+  },
+  /**
    * Callback for touch event listeners.
    * @param {int} x Cursor X position
    * @param {int} y Cursor Y position
@@ -200,10 +200,10 @@ var TrackUI = {
   fillInfo: function(x,y,event,element) {
     TrackUI.info.push( new Date().getTime() +" "+ x +" "+ y +" "+ event +" "+ element );
   },
-  /** 
+  /**
    * Transmit remaining (if any) data to server.
    * @return void
-   */   
+   */
   flush: function(e) {
     if (TrackUI.uid) {
       TrackUI.appendData();
@@ -211,5 +211,5 @@ var TrackUI = {
       TrackUI.initNewData();
     }
   }
- 
+
 };

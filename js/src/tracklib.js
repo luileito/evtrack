@@ -10,35 +10,36 @@ var TrackLib = {};
 /**
  * XPath functions.
  * Not documented yet.
- * Code extracted from window.js @ http://code.google.com/p/xpathchecker/ 
+ * Code extracted from window.js @ http://code.google.com/p/xpathchecker/
+ * @author Brian Slesinsky (http://slesinsky.org)
  */
 TrackLib.XPath = {
 
     queryXPath: function(document, xpath) {
-      var xpathResult;
+      var iterator;
       if (typeof document.evaluate === 'function') {
-        xpathResult = document.evaluate(xpath, document.documentElement, null, XPathResult.ANY_TYPE, null);
+        iterator = document.evaluate(xpath, document.documentElement, null, XPathResult.ANY_TYPE, null);
       } else {
         try {
           // IE5 and later has implemented that [0] should be the first node, 
           // but according to the W3C standard it should have been [1]!
           document.setProperty("SelectionLanguage", "XPath");
-          xpathResult = document.selectNodes(xpath);
+          iterator = document.selectNodes(xpath);
         } catch(err) {
-          xpathResult = false;
+          iterator = false;
         }
       }
       
-      return xpathResult;
+      return iterator;
     },
     
     getXPathNodes: function(document, xpath) {
-      var xpathResult = this.queryXPath(document, xpath);
+      var iterator = this.queryXPath(document, xpath);
       var result = [];
-      var item = xpathResult.iterateNext();
+      var item = iterator.iterateNext();
       while (item) {
         result.push(item);
-        item = xpathResult.iterateNext();
+        item = iterator.iterateNext();
       }
       
       return result;
@@ -136,7 +137,7 @@ TrackLib.XPath = {
       
       return result;
     },
-    
+
     getNodeValues: function(resultList) {
       var result = [];
       for (var i in resultList) {
@@ -154,7 +155,7 @@ TrackLib.XHR = {
   /**
    * Creates an XML/HTTP request to provide async communication with the server.
    * @return {object} XHR object
-   * @autor Peter-Paul Koch (quirksMode.org)
+   * @autor Peter-Paul Koch (http://quirksMode.org)
    */
   createXMLHTTPObject: function() {
     var xmlhttp = false;
@@ -172,7 +173,7 @@ TrackLib.XHR = {
       } catch(e) { continue; }
       break;
     }
-
+    
     return xmlhttp;
   },
   /**
@@ -181,7 +182,7 @@ TrackLib.XHR = {
    * Note: CORS on IE will work only for version 8 or higher.
    * @return void
    * @param  {object} setup Request properties
-   *    @config {string}    url           Request URL
+   *    @config {string}    url       Request URL
    *    @config {boolean}  [async]    Asynchronous request (or not)
    *    @config {function} [callback] Response function
    *    @config {string}   [postdata] POST vars in the form "var1=name&var2=name..."
@@ -204,7 +205,7 @@ TrackLib.XHR = {
     // post requests must set the correct content type (not allowed under CORS + IE, though)
     if (setup.postdata && !iecors) 
       request.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
-
+    
     // add load listener
     if (iecors) {
       request.onload = function(){
@@ -219,10 +220,9 @@ TrackLib.XHR = {
         }
       };
     }
-    // send request
     request.send(setup.postdata);
   }
-  
+
 };
 /**
  * Event handling object.
@@ -230,17 +230,17 @@ TrackLib.XHR = {
 TrackLib.Events = {
     /**
      * Adds event listeners unobtrusively.
-     * @author John Resig http://ejohn.org
+     * @author John Resig (http://ejohn.org)
      * @param {object}    obj   Object to add listener(s) to.
      * @param {string}    type  Event type.
      * @param {function}  fn    Function to execute.
      * @return void
-     */  
+     */
     add: function(obj, type, fn) {
       if (!obj) return false;
       if (obj.addEventListener) { // W3C standard
         obj.addEventListener(type, fn, false);
-      } else if (obj.attachEvent)	{ // IE versions
+      } else if (obj.attachEvent) { // IE versions
         obj["e"+type+fn] = fn;
         obj[type+fn] = function(){ obj["e"+type+fn](window.event); };
         obj.attachEvent("on"+type, obj[type+fn]);
@@ -248,25 +248,25 @@ TrackLib.Events = {
     },
     /**
      * Removes event listeners unobtrusively.
-     * @author John Resig http://ejohn.org     
+     * @author John Resig (http://ejohn.org)
      * @param {object}    obj   Object to remove listener(s) from
      * @param {string}    type  Event type
      * @param {function}  fn    Function to remove from event
      * @return void
-     */    
+     */
     remove: function(obj, type, fn) {
       if (!obj) return false;
       if (obj.removeEventListener) { // W3C standard
         obj.removeEventListener(type, fn, false);
-      } else if (obj.detachEvent)	{ // IE versions
-        obj.detachEvent("on"+type, obj[type+fn]);      
+      } else if (obj.detachEvent) { // IE versions
+        obj.detachEvent("on"+type, obj[type+fn]);
         obj[type+fn] = null;
       }
     }, 
     /**
      * Fixes event handling inconsistencies between browsers.
      * @param {object}  e Event
-     * @return {object}   Fixed event     
+     * @return {object}   Fixed event
      */
     fix: function(e) {
       e = e || window.event;
@@ -276,10 +276,10 @@ TrackLib.Events = {
       if (e.target.nodeType == 3) e.target = e.target.parentNode;
       // for mouse/key events; add metaKey if it's not there (IE 6/7/8)
       if (typeof e.metaKey === 'undefined') e.metaKey = e.ctrlKey;
-
+      
       return e;
     }
-    
+
 };
 /**
  * Dimension handling object.
@@ -301,13 +301,14 @@ TrackLib.Dimension = {
             : (d.documentElement && d.documentElement.clientHeight) ? d.documentElement.clientHeight
             : (d.body && d.body.clientHeight) ? d.body.clientHeight
             : 0;
+    
     return { width: w, height: h };
   },
   /**
    * Gets the document's size.
    * @return {object} document dimensions
    *    @config {integer} width
-   *    @config {integer} height   
+   *    @config {integer} height
    */
   getDocumentSize: function() {
     var d = document;
@@ -319,24 +320,23 @@ TrackLib.Dimension = {
             : (d.body && d.body.scrollHeight > d.body.offsetHeight) ? d.body.scrollHeight
             : (d.body && d.body.offsetHeight) ? d.body.offsetHeight
             : 0;
-
+    
     return { width: w, height: h };
   },
   /**
    * Gets the max value from both window (viewport's size) and document's size.
    * @return {object} viewport dimensions
    *    @config {integer} width
-   *    @config {integer} height   
+   *    @config {integer} height
    */
-  getPageSize: function()
-  {
+  getPageSize: function() {
     var win = this.getWindowSize(),
         doc = this.getDocumentSize();
-
+    
     // find max values from this group
     var w = (doc.width < win.width) ? win.width : doc.width;
     var h = (doc.height < win.height) ? win.height : doc.height;
-
+    
     return { width: w, height: h };
   }
 
@@ -357,7 +357,7 @@ TrackLib.Util = {
       }
       prevDomain = arguments[i];
     }
-
+    
     return sameDomain;
   },
   /**
@@ -367,6 +367,7 @@ TrackLib.Util = {
   getDomain: function(url) {
     var l = document.createElement("a");
     l.href = url;
+    
     return l.hostname;
   }
 
