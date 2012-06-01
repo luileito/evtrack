@@ -359,9 +359,9 @@ TrackLib.Util = {
    * @return {string}
    */
   getDomain: function(url) {
-    var domain = url.split(/\/+/g)[1];
-    // this test is necessary for local URLs
-    return (typeof d === 'undefined') ? window.location.href : domain;
+    var l = document.createElement("a");
+    l.href = href;
+    return l.hostname;
   }
 
 };
