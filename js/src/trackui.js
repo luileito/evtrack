@@ -20,7 +20,7 @@ var TrackUI = {
    */
   uid: 0,
   /**
-   * Registered information is timestamp, xpos, ypos, event, element
+   * Registered information is id, timestamp, xpos, ypos, event, element
    */
   info: [],
   /**
@@ -140,9 +140,9 @@ var TrackUI = {
    */
   eventHandler: function(e) {
     e = TrackLib.Events.fix(e);
-    
+
     var coords = TrackUI.getMousePos(e), elem = TrackUI.findElement(e);
-    TrackUI.fillInfo(coords.x, coords.y, e.type, elem);
+    TrackUI.fillInfo(e.id, coords, e.type, elem);
   },
   /**
    * Callback for touch event listeners.
@@ -151,8 +151,9 @@ var TrackUI = {
   touchHandler: function(e) {
     e = TrackLib.Events.fix(e);
     
-    var touch = e.touches[0] || e.targetTouches[0] || e.changedTouches[0];
-    if (touch) {
+    var touches = e.changedTouches; // better
+    if (touches) for (var i = 0, touch; i < touches.length; ++i) {
+      touch = touches[i];
       touch.type = e.type;
       TrackUI.eventHandler(touch);
     }
@@ -190,15 +191,15 @@ var TrackUI = {
     return TrackLib.XPath.getXPath(e.target);
   },
   /**
-   * Callback for touch event listeners.
-   * @param {int} x Cursor X position
-   * @param {int} y Cursor Y position
-   * @param {string} event    Related event
-   * @param {string} element  Related element
+   * Fills in a log data row.
+   * @param {integer} id      Cursor ID
+   * @param {object}  pos     Cursor position (x,y)
+   * @param {string}  event   Related event name
+   * @param {string}  element Related element (xpath)
    * @return void
-   */ 
-  fillInfo: function(x,y,event,element) {
-    TrackUI.info.push( new Date().getTime() +" "+ x +" "+ y +" "+ event +" "+ element );
+   */
+  fillInfo: function(id,pos,event,element) {
+    TrackUI.info.push( id +" "+ new Date().getTime() +" "+ pos.x +" "+ pos.y +" "+ event +" "+ element );
   },
   /**
    * Transmit remaining (if any) data to server.

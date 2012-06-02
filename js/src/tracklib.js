@@ -276,6 +276,8 @@ TrackLib.Events = {
       if (e.target.nodeType == 3) e.target = e.target.parentNode;
       // for mouse/key events; add metaKey if it's not there (IE 6/7/8)
       if (typeof e.metaKey === 'undefined') e.metaKey = e.ctrlKey;
+      // support multitouch events (index 0 is consistent with mobile devices)
+      e.id = e.identifier || 0;
       
       return e;
     }
