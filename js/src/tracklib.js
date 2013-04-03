@@ -192,8 +192,10 @@ TrackLib.XHR = {
     // create XHR object or reuse it
     var request = setup.xmlhttp ? setup.xmlhttp : this.createXMLHTTPObject();
     var cors = !TrackLib.Util.sameDomain(window.location.href, setup.url);
-    // CORS does work with XMLHttpRequest on modern browser, except IE
-    if (cors && window.XDomainRequest) request = new XDomainRequest();
+    // CORS does work with XMLHttpRequest on modern browsers, except IE
+    if (cors && window.XDomainRequest) {
+      request = new XDomainRequest();
+    }
     if (!request) return false;
     
     var method = setup.postdata ? "POST" : "GET";
@@ -203,9 +205,9 @@ TrackLib.XHR = {
     
     var iecors = window.XDomainRequest && (request instanceof XDomainRequest);
     // post requests must set the correct content type (not allowed under CORS + IE, though)
-    if (setup.postdata && !iecors) 
+    if (setup.postdata && !iecors) {
       request.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
-    
+    }
     // add load listener
     if (iecors) {
       request.onload = function(){
@@ -241,9 +243,9 @@ TrackLib.Events = {
       if (obj.addEventListener) { // W3C standard
         obj.addEventListener(type, fn, false);
       } else if (obj.attachEvent) { // IE versions
-        obj["e"+type+fn] = fn;
-        obj[type+fn] = function(){ obj["e"+type+fn](window.event); };
-        obj.attachEvent("on"+type, obj[type+fn]);
+        obj.attachEvent("on"+type, fn);
+      } else { // Really old browser
+        obj[type+fn] = function(){ fn(window.event); };
       }
     },
     /**
@@ -259,7 +261,8 @@ TrackLib.Events = {
       if (obj.removeEventListener) { // W3C standard
         obj.removeEventListener(type, fn, false);
       } else if (obj.detachEvent) { // IE versions
-        obj.detachEvent("on"+type, obj[type+fn]);
+        obj.detachEvent("on"+type, fn);
+      } else { // Really old browser
         obj[type+fn] = null;
       }
     }, 
