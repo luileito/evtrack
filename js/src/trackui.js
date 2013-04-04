@@ -16,6 +16,9 @@ var TrackUI = {
     postServer: "http://my.server.org/save.script",
     // The interval (in seconds) to post data to the server.
     postInterval: 30,
+    // Sampling frequency (in Hz or frames per second)
+    // If set to 0, every single event will be recorded.
+    samplingFreq: 10,
     // A name that identifies the current task.
     // Useful to filter logs by e.g. tracking campaign ID.
     taskName: "evtrack",
@@ -29,12 +32,16 @@ var TrackUI = {
    */
   uid: 0,
   /**
+   * Tracking time for samplingFreq.
+   */  
+  time: new Date().getTime(),
+  /**
    * Registered information is: id, timestamp, xpos, ypos, event, element
    */
   info: [],
   /**
    * Init method. Registers event listeners.
-   * @param {object} config  Tracking settings
+   * @param {object} config  Tracking Settings
    * @return void
    */
   record: function(config) {
@@ -166,9 +173,17 @@ var TrackUI = {
 
     var coords   = TrackUI.getMousePos(e), 
         element  = TrackUI.findElement(e),
-        timeNow  = new Date().getTime();
+        timeNow  = new Date().getTime(),
+        register = true;
         
-    TrackUI.fillInfo(e.id, timeNow, coords, e.type, element);
+    if (TrackUI.settings.samplingFreq > 0) {
+      register = timeNow - TrackUI.time >= TrackUI.settings.samplingFreq;
+    }
+    
+    if (register) {
+      TrackUI.fillInfo(e.id, timeNow, coords, e.type, element);
+      TrackUI.time = timeNow;
+    }
   },
   /**
    * Callback for touch event listeners.
