@@ -374,6 +374,34 @@ TrackLib.Util = {
     l.href = url;
     
     return l.hostname;
+  },
+  /**
+   * Executes callback on DOM load.
+   * @param {function} callback
+   * @return void
+   */
+  onDOMload: function(callback) {
+    if (arguments.callee.done) return;
+    arguments.callee.done = true;
+    
+    if (document.addEventListener) {
+      // W3C browsers
+      document.addEventListener('DOMContentLoaded', callback, false);
+    }
+    else if (document.attachEvent) {
+      // Internet Explorer ¬¬
+      try {
+        document.write("<scr"+"ipt id=__ie_onload defer=true src=//:><\/scr"+"ipt>");
+        var script = document.getElementById("__ie_onload");
+        script.onreadystatechange = function() {
+          if (this.readyState === 'complete') { callback(); }
+        };
+      } catch(err) {}
+    }
+    else {
+      // Really old browsers
+      TrackLib.Events.add(window, 'load', callback);
+    }
   }
 
 };
