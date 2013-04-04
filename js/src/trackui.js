@@ -45,7 +45,7 @@ var TrackUI = {
    * @return void
    */
   record: function(config) {
-    // override, if need be
+    // Override settings, if need be
     for (var prop in this.settings) if (config.hasOwnProperty(prop) && config[prop] !== null) {
       this.settings[prop] = config[prop];
     }
@@ -59,9 +59,9 @@ var TrackUI = {
     for (i = 0; i < touchEvts.length; ++i) TrackLib.Events.add(document, touchEvts[i], TrackUI.touchHandler);
     for (i = 0; i < keyEvts.length; ++i) TrackLib.Events.add(document, keyEvts[i], TrackUI.keyHandler);
     for (i = 0; i < winEvts.length; ++i) TrackLib.Events.add(window, winEvts[i], TrackUI.winHandler);
-    // this is for IE compatibility, grrr
+    // This is for IE compatibility, grrr
     if (document.attachEvent) {
-      // see http://todepoint.com/blog/2008/02/18/windowonblur-strange-behavior-on-browsers/
+      // See http://todepoint.com/blog/2008/02/18/windowonblur-strange-behavior-on-browsers/
       TrackLib.Events.add(document.body, "focusout", TrackUI.winHandler);
       TrackLib.Events.add(document.body, "focusin",  TrackUI.winHandler);
     }
@@ -91,13 +91,13 @@ var TrackUI = {
         data += "&task="    + TrackUI.settings.taskName;
         data += "&layout="  + TrackUI.settings.layoutType;
         data += "&action="  + "init";
-    // send request
+    // Send request
     TrackUI.send({
       async:    async,    
       postdata: data, 
       callback: TrackUI.setUserId
     });
-    // clean up
+    // Clean up
     TrackUI.info = [];
   },
   /**
@@ -122,12 +122,12 @@ var TrackUI = {
     var data  = "uid="     + TrackUI.uid;
         data += "&info="   + TrackUI.info;
         data += "&action=" + "append";
-    // send request
+    // Send request
     TrackUI.send({
       async:    async,
       postdata: data
     });
-    // clean up
+    // Clean up
     TrackUI.info = [];
   },
   /**
@@ -218,7 +218,7 @@ var TrackUI = {
       cx = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
       cy = e.clientY + document.body.scrollTop  + document.documentElement.scrollTop;
     }
-    // sometimes the mouse coordinates are negative (e.g., in Opera)
+    // Sometimes the mouse coordinates are negative (e.g., in Opera)
     if (!cx || cx < 0) cx = 0;
     if (!cy || cy < 0) cy = 0;
     

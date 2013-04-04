@@ -159,14 +159,14 @@ TrackLib.XHR = {
    */
   createXMLHTTPObject: function() {
     var xmlhttp = false;
-    // current AJAX flavours
+    // Current AJAX flavors
     var factories = [
       function(){ return new XMLHttpRequest(); },
       function(){ return new ActiveXObject("Msxml2.XMLHTTP"); },
       function(){ return new ActiveXObject("Msxml3.XMLHTTP"); },
       function(){ return new ActiveXObject("Microsoft.XMLHTTP"); }
     ];
-    // check AJAX flavour
+    // Check AJAX flavor
     for (var i = 0; i < factories.length; ++i) {
       try {
         xmlhttp = factories[i]();
@@ -189,7 +189,7 @@ TrackLib.XHR = {
    *    @config {object}   [xmlhttp]  A previous XMLHTTP object can be reused
    */
   sendAjaxRequest: function(setup) {
-    // create XHR object or reuse it
+    // Create XHR object or reuse it
     var request = setup.xmlhttp ? setup.xmlhttp : this.createXMLHTTPObject();
     var cors = !TrackLib.Util.sameDomain(window.location.href, setup.url);
     // CORS does work with XMLHttpRequest on modern browsers, except IE
@@ -200,24 +200,23 @@ TrackLib.XHR = {
     
     var method = setup.postdata ? "POST" : "GET";
     var asynchronous = setup.hasOwnProperty('async') ? setup.async : true;
-    // start request
+    // Start request
     request.open(method, setup.url, asynchronous);
     
     var iecors = window.XDomainRequest && (request instanceof XDomainRequest);
-    // post requests must set the correct content type (not allowed under CORS + IE, though)
+    // Post requests must set the correct content type (not allowed under CORS + IE, though)
     if (setup.postdata && !iecors) {
       request.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
     }
-    // add load listener
+    // Add load listener
     if (iecors) {
       request.onload = function(){
         if (typeof setup.callback === 'function') setup.callback(request.responseText);
       };
     } else {
-      // check for the 'complete' request state
+      // Check for the 'complete' request state
       request.onreadystatechange = function(){
         if (request.readyState == 4 && typeof setup.callback === 'function') {
-          // send server response to callback function
           setup.callback(request.responseText);
         }
       };
@@ -273,13 +272,13 @@ TrackLib.Events = {
      */
     fix: function(e) {
       e = e || window.event;
-      // fix target property, if necessary (IE 6/7/8 & Safari 2)
+      // Fix target property, if necessary (IE 6/7/8 & Safari 2)
       if (!e.target) e.target = e.srcElement || document;
-      // target should not be a text node (Safari bug)
+      // Target should not be a text node (Safari bug)
       if (e.target.nodeType == 3) e.target = e.target.parentNode;
-      // for mouse/key events; add metaKey if it's not there (IE 6/7/8)
+      // For mouse/key events; add metaKey if it's not there (IE 6/7/8)
       if (typeof e.metaKey === 'undefined') e.metaKey = e.ctrlKey;
-      // support multitouch events (index 0 is consistent with mobile devices)
+      // Support multitouch events (index 0 is consistent with mobile devices)
       e.id = e.identifier || 0;
       
       return e;
@@ -338,7 +337,7 @@ TrackLib.Dimension = {
     var win = this.getWindowSize(),
         doc = this.getDocumentSize();
     
-    // find max values from this group
+    // Find max values from this group
     var w = (doc.width < win.width) ? win.width : doc.width;
     var h = (doc.height < win.height) ? win.height : doc.height;
     
