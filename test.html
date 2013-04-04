@@ -3,13 +3,15 @@
 
 <head>
   <title>Test</title>
-  <script type="text/javascript" src="js/load.min.js"></script>
+  <script type="text/javascript" src="js/src/load.js"></script>
   <script type="text/javascript">
   (function(){
 
     TrackUI.record({
+      debug: true,
+      pollingMs: 200,
       postServer: "save.php", // to be implemented
-      postInterval: 20 // seconds
+      postInterval: 10 // seconds
     });
 
   })();
