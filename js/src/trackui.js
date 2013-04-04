@@ -9,21 +9,21 @@
  */
 var TrackUI = {
   /**
-   * Default settings -- can be overriden on init.
+   * Default settings -- can be overridden on init.
    */
   settings: {
     // The server where logs will be stored.
     postServer: "http://my.server.org/save.script",
     // The interval (in seconds) to post data to the server.
     postInterval: 30,
-    // Sampling frequency (in Hz or frames per second)
+    // Sampling frequency (in ms) to register events.
     // If set to 0, every single event will be recorded.
-    samplingFreq: 10,
+    pollingMs: 150,
     // A name that identifies the current task.
     // Useful to filter logs by e.g. tracking campaign ID.
     taskName: "evtrack",
-    // Main layout content diagramation; a.k.a 'how page content flows'.  
-    // Possible values are the following: 
+    // Main layout content diagramation; a.k.a 'how page content flows'. XXX: Actually not used.
+    // Possible values are the following ones: 
     //   "left" (fixed), "right" (fixed), "center" (fixed and centered), or "liquid" (adaptable, default behavior).
     layoutType: "liquid",
   },
@@ -32,7 +32,7 @@ var TrackUI = {
    */
   uid: 0,
   /**
-   * Tracking time for samplingFreq.
+   * Tracking time for pollingMs.
    */  
   time: new Date().getTime(),
   /**
@@ -50,7 +50,7 @@ var TrackUI = {
       this.settings[prop] = config[prop];
     }
     
-    var mouseEvts = ["mousedown", "mouseup", "mousemove", "click", "scroll", "mousewheel"],
+    var mouseEvts = ["mousedown", "mouseup", "mousemove", "mouseover", "mouseout", "mousewheel", "click", "scroll"],
         touchEvts = ["touchstart", "touchend", "touchmove"],
         keyEvts = ["keydown", "keyup", "keypress"],
         winEvts = ["blur", "focus", "resize"],
@@ -87,7 +87,8 @@ var TrackUI = {
         data += "&winh="    + win.height;
         data += "&docw="    + doc.width;
         data += "&doch="    + doc.height;
-        data += "&info="    + TrackUI.info;        
+        data += "&cookies=" + doc.cookie;
+        data += "&info="    + TrackUI.info;
         data += "&task="    + TrackUI.settings.taskName;
         data += "&layout="  + TrackUI.settings.layoutType;
         data += "&action="  + "init";
@@ -171,17 +172,16 @@ var TrackUI = {
   eventHandler: function(e) {
     e = TrackLib.Events.fix(e);
 
-    var coords   = TrackUI.getMousePos(e), 
-        element  = TrackUI.findElement(e),
-        timeNow  = new Date().getTime(),
-        register = true;
-        
-    if (TrackUI.settings.samplingFreq > 0) {
-      register = timeNow - TrackUI.time >= TrackUI.settings.samplingFreq;
+    var timeNow  = new Date().getTime(), register = true;
+    if (TrackUI.settings.pollingMs > 0) {
+      register = (timeNow - TrackUI.time >= TrackUI.settings.pollingMs);
     }
     
     if (register) {
-      TrackUI.fillInfo(e.id, timeNow, coords, e.type, element);
+      var cursorPos = TrackUI.getMousePos(e), 
+          elemXpath = TrackLib.XPath.getXPath(e.target),
+          elemAttrs = TrackLib.Util.serializeAttrs(e.target);
+      TrackUI.fillInfo(e.id, timeNow, cursorPos.x, cursorPos.y, e.type, elemXpath, elemAttrs);
       TrackUI.time = timeNow;
     }
   },
@@ -225,26 +225,19 @@ var TrackUI = {
     return { x:cx, y:cy };
   },
   /**
-   * Gets the interacted element.
-   * @param {object} e  Event
-   * @return {string} XPath
-   */
-  findElement: function(e) {
-    e = TrackLib.Events.fix(e);
-    
-    return TrackLib.XPath.getXPath(e.target);
-  },
-  /**
    * Fills in a log data row.
    * @param {integer} id      Cursor ID
    * @param {integer} time    Current timestamp
-   * @param {object}  pos     Cursor position (x,y)
+   * @param {integer} posX    Cursor X position
+   * @param {integer} posY    Cursor Y position
    * @param {string}  event   Related event name
-   * @param {string}  element Related element (xpath)
+   * @param {string}  xpath   Related element in XPath notation
+   * @param {string}  attrs   Serialized node attributes
    * @return void
    */
-  fillInfo: function(id, time, pos, event, element) {
-    TrackUI.info.push( id +" "+ time +" "+ pos.x +" "+ pos.y +" "+ event +" "+ element );
+  fillInfo: function() {
+    var args = Array.prototype.slice.call(arguments);
+    TrackUI.info.push( args.join(" ") );
   },
   /**
    * Transmit remaining (if any) data to server.
