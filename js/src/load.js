@@ -7,22 +7,14 @@
  * @license Dual licensed under the MIT and GPL licenses.
  */
 (function(){
-
-  // Delay recording function until all libs are fully loaded
-  var _cache;
-  window.TrackUI = {
-    record: function(opts) {
-      _cache = function() { window.TrackUI.record(opts); }
-    }
-  };
-  
+ 
   function createScript(filepath) {
     var scriptElem = document.createElement('script');
     scriptElem.type = "text/javascript";
     scriptElem.src = filepath;
     return scriptElem;
   };
-  
+    
   // Grab path of currently executing script
   var scripts = document.getElementsByTagName('script');
   var currentScript = scripts[scripts.length - 1];
@@ -31,18 +23,38 @@
   pathParts.splice(pathParts.length - 1, 1);
   // Now we have the full script path
   var path = pathParts.join("/");
-  // Load libs accordingly. TODO: implement a 'promise' load pattern
+  // Load libs accordingly
   var ext = pathParts[pathParts.length - 1] == "src" ? ".js" : ".min.js";
-  var aux = createScript(path + "/" + "tracklib" + ext);
-  currentScript.parentNode.insertBefore(aux, currentScript.nextSibling);
-  aux.onload = function() {
-    var record = createScript(path + "/" + "trackui" + ext);  
-    currentScript.parentNode.insertBefore(record, aux.nextSibling);
-    record.onload = function() {
-      _cache();
+    
+  function loadLibFile(jsModule, callback) {
+    var lib = createScript(path + "/" + jsModule + ext);
+    currentScript.parentNode.insertBefore(lib, currentScript);
+    lib.onload = function() {
+      callback();
     };
-    // Finally remove loader script
-    currentScript.parentNode.removeChild(currentScript);
+  };
+
+
+  var deferredInit;
+  // Delay tracking execution until everything is loaded  
+  window.TrackUI = {
+    record: function(opts) {
+      deferredInit = function() { window.TrackUI.record(opts); }
+    }
+  };
+    
+  var loaders = ["json2", "tracklib", "trackui"];
+  for (var lib in loaders) {
+    loadLibFile(loaders[lib], done);
+  }
+  
+  function done() {
+    loaders.shift();
+    if (loaders.length === 0) {
+      // Remove load.js and execute init fn
+      currentScript.parentNode.removeChild(currentScript);
+      deferredInit();
+    }
   };
 
 })();
