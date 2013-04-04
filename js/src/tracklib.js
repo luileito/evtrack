@@ -47,11 +47,9 @@ TrackLib.XPath = {
 
     getXPath: function(targetNode) {
       var useLowerCase = (targetNode.ownerDocument instanceof HTMLDocument);
-      var nodePath = this.getNodePath(targetNode);
-      var nodeNames = [];
+      var nodePath = this.getNodePath(targetNode), nodeNames = [];
       for (var i in nodePath) {
-        var nodeIndex;
-        var node = nodePath[i];
+        var node = nodePath[i], nodeIndex;
         if (node.nodeType == 1) { // && node.tagName != "TBODY") {
           if (i == 0 && node.hasAttribute("id")) {
             nodeNames.push("/*[@id='" + node.getAttribute("id") + "']");
@@ -102,8 +100,7 @@ TrackLib.XPath = {
     },
 
     getChildNodesWithTagName: function(parent, tagName) {
-      var result = [];
-      var child = parent.firstChild;
+      var result = [], child = parent.firstChild;
       while (child != null) {
         if (child.tagName && child.tagName == tagName) {
           result.push(child);
@@ -115,8 +112,7 @@ TrackLib.XPath = {
     },
 
     getChildTextNodes: function(parent) {
-      var result = [];
-      var child = parent.firstChild;
+      var result = [], child = parent.firstChild;
       while (child != null) {
         if (child.nodeType == 3) {
           result.push(child);
@@ -369,10 +365,12 @@ TrackLib.Util = {
    * @return {string}
    */
   getDomain: function(url) {
-    var l = document.createElement("a");
-    l.href = url;
+    var d, link = document.createElement("a");
+    link.href = url;
+    d = link.hostname;
+    link = null; // free
     
-    return l.hostname;
+    return d;
   },
   /**
    * Executes callback on DOM load.
@@ -401,6 +399,38 @@ TrackLib.Util = {
       // Really old browsers
       TrackLib.Events.add(window, 'load', callback);
     }
-  }
+  },
+  /**
+   * Serializes a DOM node.
+   * @param {object} elem  DOM node
+   * @return {string} HTML representation of the DOM node
+   */  
+  serialize: function(elem) {
+    var txt, node = document.createElement("div");
+    node.appendChild(elem);
+    txt  = node.innerHTML;
+    node = null; // free
 
+    return txt;
+  },
+  /**
+   * Serializes the attributes of a DOM node.
+   * @param {object} elem  DOM node
+   * @return {string} JSON representation of the node attributes
+   */   
+  serializeAttrs: function(elem) {
+    var obj = {};
+    if (elem && elem.attributes) {
+      obj[elem.nodeName] = {};
+      for (var i = 0, t = elem.attributes.length; i < t; i++) {
+        var attrib = elem.attributes[i];
+        if (attrib.specified) {
+          obj[elem.nodeName][attrib.name] = attrib.value;
+        }
+      }
+    }
+    
+    return JSON.stringify(obj);
+  }
+  
 };
