@@ -26,6 +26,8 @@ var TrackUI = {
     // Possible values are the following ones: 
     //   "left" (fixed), "right" (fixed), "center" (fixed and centered), or "liquid" (adaptable, default behavior).
     layoutType: "liquid",
+    // Enable this to display some debug information
+    debug: false,
   },
   /**
    * Unique user ID assigned by the server.
@@ -46,9 +48,11 @@ var TrackUI = {
    */
   record: function(config) {
     // Override settings, if need be
-    for (var prop in this.settings) if (config.hasOwnProperty(prop) && config[prop] !== null) {
-      this.settings[prop] = config[prop];
+    for (var prop in TrackUI.settings) if (config.hasOwnProperty(prop) && config[prop] !== null) {
+      TrackUI.settings[prop] = config[prop];
     }
+    
+    TrackUI.log("Recording starts...", TrackUI.settings);
     
     var mouseEvts = ["mousedown", "mouseup", "mousemove", "mouseover", "mouseout", "mousewheel", "click", "scroll"],
         touchEvts = ["touchstart", "touchend", "touchmove"],
@@ -87,10 +91,10 @@ var TrackUI = {
         data += "&winh="    + win.height;
         data += "&docw="    + doc.width;
         data += "&doch="    + doc.height;
-        data += "&cookies=" + doc.cookie;
         data += "&info="    + TrackUI.info;
         data += "&task="    + TrackUI.settings.taskName;
         data += "&layout="  + TrackUI.settings.layoutType;
+        data += "&cookies=" + document.cookie;
         data += "&action="  + "init";
     // Send request
     TrackUI.send({
@@ -108,6 +112,7 @@ var TrackUI = {
    */
   setUserId: function(response) {
     TrackUI.uid = parseInt(response);
+    TrackUI.log("setUserId:", TrackUI.uid);
     if (TrackUI.uid) {
       setInterval(function(){
         TrackUI.appendData(true);
@@ -236,8 +241,9 @@ var TrackUI = {
    * @return void
    */
   fillInfo: function() {
-    var args = Array.prototype.slice.call(arguments);
+    var args = [].slice.apply(arguments);
     TrackUI.info.push( args.join(" ") );
+    TrackUI.log(args);
   },
   /**
    * Transmit remaining (if any) data to server.
@@ -245,11 +251,18 @@ var TrackUI = {
    * @return void
    */
   flush: function(e) {
+    TrackUI.log("Flushing data...", TrackUI.uid);
     // Don't use asynchronous requests here, otherwise this won't work
     if (TrackUI.uid) {
       TrackUI.appendData(false);
     } else {
       TrackUI.initNewData(false);
+    }
+  },
+  
+  log: function() {
+    if (TrackUI.settings.debug && typeof console.log === 'function') {
+      console.log.apply(console, arguments);
     }
   }
 
