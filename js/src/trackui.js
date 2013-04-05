@@ -27,7 +27,7 @@ var TrackUI = {
     //   "left" (fixed), "right" (fixed), "center" (fixed and centered), or "liquid" (adaptable, default behavior).
     layoutType: "liquid",
     // Enable this to display some debug information
-    debug: false,
+    debug: false
   },
   /**
    * Unique user ID assigned by the server.
