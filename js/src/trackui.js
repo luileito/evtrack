@@ -16,6 +16,8 @@ var TrackUI = {
     postServer: "http://my.server.org/save.script",
     // The interval (in seconds) to post data to the server.
     postInterval: 30,
+    // Events to be polled, because some of them are not always needed (e.g. mousemove)
+    pollingEvents: [],
     // Sampling frequency (in ms) to register events.
     // If set to 0, every single event will be recorded.
     pollingMs: 150,
@@ -54,15 +56,13 @@ var TrackUI = {
     
     TrackUI.log("Recording starts...", TrackUI.settings);
     
-    var mouseEvts = ["mousedown", "mouseup", "mousemove", "mouseover", "mouseout", "mousewheel", "click", "scroll"],
-        touchEvts = ["touchstart", "touchend", "touchmove"],
-        keyEvts = ["keydown", "keyup", "keypress"],
-        winEvts = ["blur", "focus", "resize"],
-        i;
-    for (i = 0; i < mouseEvts.length; ++i) TrackLib.Events.add(document, mouseEvts[i], TrackUI.mouseHandler);
-    for (i = 0; i < touchEvts.length; ++i) TrackLib.Events.add(document, touchEvts[i], TrackUI.touchHandler);
-    for (i = 0; i < keyEvts.length; ++i) TrackLib.Events.add(document, keyEvts[i], TrackUI.keyHandler);
-    for (i = 0; i < winEvts.length; ++i) TrackLib.Events.add(window, winEvts[i], TrackUI.winHandler);
+    var docEvents = "mousedown mouseup mousemove mouseover mouseout mousewheel click scroll " +
+                    "touchstart touchend touchmove keydown keyup keypress".split(" ");
+    var winEvents = "blur focus resize".split(" ");
+    
+    var i;
+    for (i = 0; i < docEvents.length; ++i) TrackLib.Events.add(document, docEvents[i], TrackUI.keyHandler);
+    for (i = 0; i < winEvents.length; ++i) TrackLib.Events.add(window, winEvents[i], TrackUI.winHandler);
     // This is for IE compatibility, grrr
     if (document.attachEvent) {
       // See http://todepoint.com/blog/2008/02/18/windowonblur-strange-behavior-on-browsers/
@@ -177,8 +177,8 @@ var TrackUI = {
   eventHandler: function(e) {
     e = TrackLib.Events.fix(e);
 
-    var timeNow  = new Date().getTime(), register = true;
-    if (TrackUI.settings.pollingMs > 0) {
+    var timeNow  = new Date().getTime(), eventName = e.type, register = true;
+    if (TrackUI.settings.pollingMs > 0 && TrackUI.settings.pollingEvents.indexOf(eventName) > -1) {
       register = (timeNow - TrackUI.time >= TrackUI.settings.pollingMs);
     }
     
@@ -186,7 +186,7 @@ var TrackUI = {
       var cursorPos = TrackUI.getMousePos(e), 
           elemXpath = TrackLib.XPath.getXPath(e.target),
           elemAttrs = TrackLib.Util.serializeAttrs(e.target);
-      TrackUI.fillInfo(e.id, timeNow, cursorPos.x, cursorPos.y, e.type, elemXpath, elemAttrs);
+      TrackUI.fillInfo(e.id, timeNow, cursorPos.x, cursorPos.y, eventName, elemXpath, elemAttrs);
       TrackUI.time = timeNow;
     }
   },
@@ -237,7 +237,7 @@ var TrackUI = {
    * @param {integer} posY    Cursor Y position
    * @param {string}  event   Related event name
    * @param {string}  xpath   Related element in XPath notation
-   * @param {string}  attrs   Serialized node attributes
+   * @param {string}  attrs   Serialized node attributes   
    * @return void
    */
   fillInfo: function() {
