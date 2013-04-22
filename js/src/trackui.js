@@ -16,8 +16,9 @@ var TrackUI = {
     postServer: "http://my.server.org/save.script",
     // The interval (in seconds) to post data to the server.
     postInterval: 30,
-    // Events to be polled, because some of them are not always needed (e.g. mousemove)
-    pollingEvents: [],
+    // Events to be polled, because some of them are not always needed (e.g. mousemove).
+    // Use space-separated values to indicate multiple events, e.g. "mousemove touchmove".
+    pollingEvents: "",
     // Sampling frequency (in ms) to register events.
     // If set to 0, every single event will be recorded.
     pollingMs: 150,
@@ -54,8 +55,11 @@ var TrackUI = {
       TrackUI.settings[prop] = config[prop];
     }
     
+    TrackUI.settings.pollingEvents.split(" ");
+    
     TrackUI.log("Recording starts...", TrackUI.settings);
     
+    // Default events
     var docEvents = "mousedown mouseup mousemove mouseover mouseout mousewheel click scroll " +
                     "touchstart touchend touchmove keydown keyup keypress".split(" ");
     var winEvents = "blur focus resize".split(" ");
