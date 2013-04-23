@@ -1,6 +1,8 @@
 /*! evtrack -- UI module */
 (function(window){
 
+var document = window.document;
+
 // Define default events, as if they were set in `settings` object
 var _docEvents  = "mousedown mouseup mousemove mouseover mouseout mousewheel ";
     _docEvents += "touchstart touchend touchmove keydown keyup keypress ";
