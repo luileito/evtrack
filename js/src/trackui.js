@@ -1,5 +1,25 @@
 /*! evtrack -- UI module */
+(function(window){
 
+// Define default events, as if they were set in `settings` object
+var _docEvents  = "mousedown mouseup mousemove mouseover mouseout mousewheel ";
+    _docEvents += "touchstart touchend touchmove keydown keyup keypress ";
+    _docEvents += "click dblclick scroll change select submit reset contextmenu cut copy paste";
+
+var _winEvents = "load unload beforeunload blur focus resize error online offline";
+
+// Convert these event lists to actual array lists
+_docEvents = _docEvents.split(" ");
+_winEvents = _winEvents.split(" ");
+// Save a shortcut for "*" events
+var _allEvents = _docEvents.concat(_winEvents);
+
+var _uid  = 0  // Unique user ID, assigned by the server
+  , _time = 0  // Tracking time, for pollingMs
+  , _info = [] // Registered information is: cursorId, timestamp, xpos, ypos, event, xpath, attrs
+  ;
+
+  
 /**
  * A small lib to track the user activity by listening to browser events.
  * @author Luis Leiva
@@ -16,8 +36,22 @@ var TrackUI = {
     postServer: "http://my.server.org/save.script",
     // The interval (in seconds) to post data to the server.
     postInterval: 30,
-    // Events to be polled, because some of them are not always needed (e.g. mousemove).
+    // Events to be tracked whenever the browser fires them. Default:
+    //      mouse-related: "mousedown mouseup mousemove mouseover mouseout mousewheel click dblclick"
+    //      touch-related: "touchstart touchend touchmove"
+    //   keyboard-related: "keydown keyup keypress"
+    //     window-related: "load unload beforeunload blur focus resize error online offline"
+    //             others: "scroll change select submit reset contextmenu cut copy paste"
+    // If this property is empty, no events will be tracked.
+    // Use space-separated values to indicate multiple events, e.g. "click mousemove touchmove".
+    // The "*" wildcard can be used to specify all events.
+    regularEvents: "*",
+    // Events to be polled, because some events are not always needed (e.g. mousemove).
+    // If this property is empty (default value), no events will be polled.
     // Use space-separated values to indicate multiple events, e.g. "mousemove touchmove".
+    // The "*" wildcard can be used to specify all events.
+    // Events in pollingEvents will override those specified in regularEvents.
+    // You can leave regularEvents empty and use only pollingEvents, if need be.
     pollingEvents: "",
     // Sampling frequency (in ms) to register events.
     // If set to 0, every single event will be recorded.
@@ -33,52 +67,69 @@ var TrackUI = {
     debug: false
   },
   /**
-   * Unique user ID assigned by the server.
-   */
-  uid: 0,
-  /**
-   * Tracking time for pollingMs.
-   */  
-  time: new Date().getTime(),
-  /**
-   * Registered information is: id, timestamp, xpos, ypos, event, element
-   */
-  info: [],
-  /**
    * Init method. Registers event listeners.
    * @param {object} config  Tracking Settings
    * @return void
    */
   record: function(config) {
-    // Override settings, if need be
+    _time = new Date().getTime();
+    // Override settings
     for (var prop in TrackUI.settings) if (config.hasOwnProperty(prop) && config[prop] !== null) {
       TrackUI.settings[prop] = config[prop];
     }
-    
-    TrackUI.settings.pollingEvents.split(" ");
-    
-    TrackUI.log("Recording starts...", TrackUI.settings);
-    
-    // Default events
-    var docEvents = "mousedown mouseup mousemove mouseover mouseout mousewheel click scroll " +
-                    "touchstart touchend touchmove keydown keyup keypress".split(" ");
-    var winEvents = "blur focus resize".split(" ");
-    
-    var i;
-    for (i = 0; i < docEvents.length; ++i) TrackLib.Events.add(document, docEvents[i], TrackUI.keyHandler);
-    for (i = 0; i < winEvents.length; ++i) TrackLib.Events.add(window, winEvents[i], TrackUI.winHandler);
-    // This is for IE compatibility, grrr
-    if (document.attachEvent) {
-      // See http://todepoint.com/blog/2008/02/18/windowonblur-strange-behavior-on-browsers/
-      TrackLib.Events.add(document.body, "focusout", TrackUI.winHandler);
-      TrackLib.Events.add(document.body, "focusin",  TrackUI.winHandler);
-    }
+    TrackUI.log("Recording starts...", _time, TrackUI.settings);
+    TrackUI.addEventListeners();
     setTimeout(function(){
       TrackUI.initNewData(true);
     }, TrackUI.settings.postInterval*1000);
-    
+  },
+  /**
+   * Adds required event listeners.
+   * @return void
+   */
+  addEventListeners: function() {
+    if (TrackUI.settings.regularEvents == "*") {
+      TrackUI.addCustomEventListeners(_allEvents);
+    } else {
+      TrackUI.log("Settings regular events...");
+      TrackUI.settings.regularEvents = TrackUI.settings.regularEvents.split(" ");
+      TrackUI.addCustomEventListeners(TrackUI.settings.regularEvents);
+    }
+    // All events in this set will override those defined in regularEvents
+    if (TrackUI.settings.pollingEvents == "*") {
+      TrackUI.addCustomEventListeners(_allEvents);
+    } else {
+      TrackUI.log("Settings polling events...");
+      TrackUI.settings.pollingEvents = TrackUI.settings.pollingEvents.split(" ");    
+      TrackUI.addCustomEventListeners(TrackUI.settings.pollingEvents);
+    }
+    // Flush data on closing the window/tab
     var unload = (typeof window.onbeforeunload === 'function') ? "beforeunload" : "unload";
     TrackLib.Events.add(window, unload, TrackUI.flush);
+  },
+  /**
+   * Adds custom event listeners.
+   * @return void
+   */
+  addCustomEventListeners: function(eventList) {
+    TrackUI.log("Adding event listeners:", eventList);
+    for (var i = 0; i < eventList.length; ++i) {
+      var ev = eventList[i];
+      if (!ev) continue;
+      if (_docEvents.indexOf(ev) > -1) {
+        TrackLib.Events.add(document, ev, TrackUI.docHandler);
+        TrackUI.log("Adding document event:", ev);
+        // This is for IE compatibility, grrr
+        if (document.attachEvent) {
+          // See http://todepoint.com/blog/2008/02/18/windowonblur-strange-behavior-on-browsers/
+          if (ev == "focus") TrackLib.Events.add(document.body, "focusin", TrackUI.winHandler);
+          if (ev == "blur") TrackLib.Events.add(document.body, "focusout", TrackUI.winHandler);
+        }
+      } else if (_winEvents.indexOf(ev) > -1) {
+        TrackLib.Events.add(window, ev, TrackUI.winHandler);
+        TrackUI.log("Adding window event:", ev);
+      }
+    }
   },
   /**
    * Sets data for the first time for a given user.
@@ -95,7 +146,7 @@ var TrackUI = {
         data += "&winh="    + win.height;
         data += "&docw="    + doc.width;
         data += "&doch="    + doc.height;
-        data += "&info="    + TrackUI.info;
+        data += "&info="    + _info;
         data += "&task="    + TrackUI.settings.taskName;
         data += "&layout="  + TrackUI.settings.layoutType;
         data += "&cookies=" + document.cookie;
@@ -107,7 +158,7 @@ var TrackUI = {
       callback: TrackUI.setUserId
     });
     // Clean up
-    TrackUI.info = [];
+    _info = [];
   },
   /**
    * Sets the user ID, to append data for the same session.
@@ -115,9 +166,9 @@ var TrackUI = {
    * @return void
    */
   setUserId: function(response) {
-    TrackUI.uid = parseInt(response);
-    TrackUI.log("setUserId:", TrackUI.uid);
-    if (TrackUI.uid) {
+    _uid = parseInt(response);
+    TrackUI.log("setUserId:", _uid);
+    if (_uid) {
       setInterval(function(){
         TrackUI.appendData(true);
       }, TrackUI.settings.postInterval*1000);
@@ -129,8 +180,8 @@ var TrackUI = {
    * @return void
    */
   appendData: function(async) {
-    var data  = "uid="     + TrackUI.uid;
-        data += "&info="   + TrackUI.info;
+    var data  = "uid="     + _uid;
+        data += "&info="   + _info;
         data += "&action=" + "append";
     // Send request
     TrackUI.send({
@@ -138,7 +189,7 @@ var TrackUI = {
       postdata: data
     });
     // Clean up
-    TrackUI.info = [];
+    _info = [];
   },
   /**
    * A common sending method with CORS support.
@@ -150,20 +201,16 @@ var TrackUI = {
     TrackLib.XHR.sendAjaxRequest(req);
   },
   /**
-   * Handles mouse events.
+   * Handles document events.
    * @param {object} e  Event
    * @return void
    */
-  mouseHandler: function(e) {
-    TrackUI.eventHandler(e);
-  },
-  /**
-   * Handles keyboard events.
-   * @param {object} e  Event
-   * @return void
-   */
-  keyHandler: function(e) {
-    TrackUI.eventHandler(e);
+  docHandler: function(e) {
+    if (e.type.indexOf("touch") > -1) {
+      TrackUI.touchHandler(e);
+    } else {
+      TrackUI.eventHandler(e);
+    }
   },
   /**
    * Handles window events.
@@ -183,7 +230,7 @@ var TrackUI = {
 
     var timeNow  = new Date().getTime(), eventName = e.type, register = true;
     if (TrackUI.settings.pollingMs > 0 && TrackUI.settings.pollingEvents.indexOf(eventName) > -1) {
-      register = (timeNow - TrackUI.time >= TrackUI.settings.pollingMs);
+      register = (timeNow - _time >= TrackUI.settings.pollingMs);
     }
     
     if (register) {
@@ -191,7 +238,7 @@ var TrackUI = {
           elemXpath = TrackLib.XPath.getXPath(e.target),
           elemAttrs = TrackLib.Util.serializeAttrs(e.target);
       TrackUI.fillInfo(e.id, timeNow, cursorPos.x, cursorPos.y, eventName, elemXpath, elemAttrs);
-      TrackUI.time = timeNow;
+      _time = timeNow;
     }
   },
   /**
@@ -246,7 +293,7 @@ var TrackUI = {
    */
   fillInfo: function() {
     var args = [].slice.apply(arguments);
-    TrackUI.info.push( args.join(" ") );
+    _info.push( args.join(" ") );
     TrackUI.log(args);
   },
   /**
@@ -255,9 +302,12 @@ var TrackUI = {
    * @return void
    */
   flush: function(e) {
-    TrackUI.log("Flushing data...", TrackUI.uid);
+    TrackUI.log("Flushing data...", _uid);
+    for (i = 0; i < _docEvents.length; ++i) TrackLib.Events.add(document, _docEvents[i], TrackUI.docHandler);
+    for (i = 0; i < _winEvents.length; ++i) TrackLib.Events.add(window, _winEvents[i], TrackUI.winHandler);
+      
     // Don't use asynchronous requests here, otherwise this won't work
-    if (TrackUI.uid) {
+    if (_uid) {
       TrackUI.appendData(false);
     } else {
       TrackUI.initNewData(false);
@@ -271,3 +321,8 @@ var TrackUI = {
   }
 
 };
+
+// Expose
+window.TrackUI = TrackUI;
+
+})(this);
