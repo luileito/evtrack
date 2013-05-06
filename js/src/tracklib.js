@@ -6,11 +6,11 @@
  * @version 0.2
  * @license Dual licensed under the MIT and GPL licenses.
  */
-var TrackLib = {};
+var TrackLib = window.TrackLib || {};
 /**
  * XPath functions.
  * Not documented yet.
- * Code extracted from window.js @ http://code.google.com/p/xpathchecker/
+ * Code adapted from window.js @ http://code.google.com/p/xpathchecker/
  * @author Brian Slesinsky (http://slesinsky.org)
  */
 TrackLib.XPath = {
@@ -45,30 +45,34 @@ TrackLib.XPath = {
       return result;
     },
 
-    getXPath: function(targetNode) {
-      var useLowerCase = (targetNode.ownerDocument instanceof HTMLDocument);
-      var nodePath = this.getNodePath(targetNode), nodeNames = [];
-      for (var i in nodePath) {
-        var node = nodePath[i], nodeIndex;
-        if (node.nodeType == 1) { // && node.tagName != "TBODY") {
-          if (i == 0 && node.hasAttribute("id")) {
+    getXPath: function(targetNode, absolute) {
+      var lowerCase = (targetNode.ownerDocument instanceof HTMLDocument)
+        , xNodePath = this.getNodePath(targetNode, absolute)
+        , nodeNames = []
+        ;
+      for (var i in xNodePath) {
+        var node = xNodePath[i]
+          , nIdx
+          ;
+        if (node.nodeType == 1) {
+          if (i == 0 && !absolute && node.hasAttribute("id")) {
             nodeNames.push("/*[@id='" + node.getAttribute("id") + "']");
           } else {
             var tagName = node.tagName;
-            if (useLowerCase) {
+            if (lowerCase) {
               tagName = tagName.toLowerCase();
             }
-            nodeIndex = this.getNodeIndex(node);
-            if (nodeIndex != null) {
-              nodeNames.push(tagName + "[" + nodeIndex + "]");
+            nIdx = this.getNodeIndex(node);
+            if (nIdx != null) {
+              nodeNames.push(tagName + "[" + nIdx + "]");
             } else {
               nodeNames.push(tagName);
             }
           }
         } else if (node.nodeType == 3) {
-          nodeIndex = this.getTextNodeIndex(node);
-          if (nodeIndex != null) {
-            nodeNames.push("text()[" + nodeIndex + "]");
+          nIdx = this.getTextNodeIndex(node);
+          if (nIdx != null) {
+            nodeNames.push("text()[" + nIdx + "]");
           } else {
             nodeNames.push("text()");
           }
@@ -86,7 +90,7 @@ TrackLib.XPath = {
         if (list[i] == node) return i + 1;
       }
       
-      throw "couldn't find node in parent's list: " + node.tagName;
+      throw new Error("couldn't find node in parent's list: " + node.tagName);
     },
 
     getTextNodeIndex: function(node) {
@@ -96,7 +100,7 @@ TrackLib.XPath = {
         if (list[i] == node) return i + 1;
       }
       
-      throw "couldn't find node in parent's list: " + node.tagName;
+      throw new Error("couldn't find node in parent's list: " + node.tagName);
     },
 
     getChildNodesWithTagName: function(parent, tagName) {
@@ -123,11 +127,11 @@ TrackLib.XPath = {
       return result;
     },
 
-    getNodePath: function(node) {
+    getNodePath: function(node, absolute) {
       var result = [];
       while (node.nodeType == 1 || node.nodeType == 3) {
         result.unshift(node);
-        if (node.nodeType == 1 && node.hasAttribute("id")) return result;
+        if (node.nodeType == 1 && node.hasAttribute("id") && !absolute) return result;
         node = node.parentNode;
       }
       
@@ -278,6 +282,33 @@ TrackLib.Events = {
       e.id = e.identifier || 0;
       
       return e;
+    },
+    /**
+     * Executes callback on DOM load.
+     * @param {function} callback
+     * @return void
+     */
+    domReady: function(callback) {
+      if (arguments.callee.done) return;
+      arguments.callee.done = true;
+      if (document.addEventListener) {
+        // W3C browsers
+        document.addEventListener('DOMContentLoaded', callback, false);
+      }
+      else if (document.attachEvent) {
+        // Internet Explorer ¬¬
+        try {
+          document.write("<scr"+"ipt id=__ie_onload defer=true src=//:><\/scr"+"ipt>");
+          var script = document.getElementById("__ie_onload");
+          script.onreadystatechange = function() {
+            if (this.readyState === 'complete') { callback(); }
+          };
+        } catch(err) {}
+      }
+      else {
+        // Really old browsers
+        TrackLib.Events.add(window, 'load', callback);
+      }
     }
 
 };
@@ -371,47 +402,6 @@ TrackLib.Util = {
     link = null; // free
     
     return d;
-  },
-  /**
-   * Executes callback on DOM load.
-   * @param {function} callback
-   * @return void
-   */
-  onDOMload: function(callback) {
-    if (arguments.callee.done) return;
-    arguments.callee.done = true;
-    
-    if (document.addEventListener) {
-      // W3C browsers
-      document.addEventListener('DOMContentLoaded', callback, false);
-    }
-    else if (document.attachEvent) {
-      // Internet Explorer ¬¬
-      try {
-        document.write("<scr"+"ipt id=__ie_onload defer=true src=//:><\/scr"+"ipt>");
-        var script = document.getElementById("__ie_onload");
-        script.onreadystatechange = function() {
-          if (this.readyState === 'complete') { callback(); }
-        };
-      } catch(err) {}
-    }
-    else {
-      // Really old browsers
-      TrackLib.Events.add(window, 'load', callback);
-    }
-  },
-  /**
-   * Serializes a DOM node.
-   * @param {object} elem  DOM node
-   * @return {string} HTML representation of the DOM node
-   */  
-  serialize: function(elem) {
-    var txt, node = document.createElement("div");
-    node.appendChild(elem);
-    txt  = node.innerHTML;
-    node = null; // free
-
-    return txt;
   },
   /**
    * Serializes the attributes of a DOM node.
