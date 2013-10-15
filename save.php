@@ -29,7 +29,7 @@ if (isset($HTTP_RAW_POST_DATA)) {
   foreach ($data as $val) {
     if (!empty($val)) {
       list($key, $value) = explode('=', $val);   
-        $_POST[$key] = urldecode($value);
+        $_POST[$key] = rawurldecode($value);
     }
   }
 }
@@ -44,7 +44,7 @@ if (get_magic_quotes_gpc()) {
 }
 
 // Convert JS array to newline-delimited entries
-$info_data = str_replace(",", PHP_EOL, $_POST['info']) .PHP_EOL;
+$info_data = str_replace("|||", PHP_EOL, $_POST['info']) .PHP_EOL;
 
 // Ensure that our dir exists
 if (!is_dir(LOGDIR)) mkdir(LOGDIR);

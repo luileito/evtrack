@@ -211,13 +211,13 @@ TrackLib.XHR = {
     // Add load listener
     if (iecors) {
       request.onload = function(){
-        if (typeof setup.callback === 'function') setup.callback(request.responseText);
+        if (typeof setup.callback === 'function') setup.callback(request);
       };
     } else {
       // Check for the 'complete' request state
       request.onreadystatechange = function(){
         if (request.readyState == 4 && typeof setup.callback === 'function') {
-          setup.callback(request.responseText);
+          setup.callback(request);
         }
       };
     }

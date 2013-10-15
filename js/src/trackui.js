@@ -141,17 +141,17 @@ var TrackUI = {
   initNewData: function(async) {
     var win = TrackLib.Dimension.getWindowSize(), 
         doc = TrackLib.Dimension.getDocumentSize(),
-        data  = "url="      + escape(window.location.href);
+        data  = "url="      + encodeURIComponent(window.location.href);
         data += "&screenw=" + screen.width;
         data += "&screenh=" + screen.height;
         data += "&winw="    + win.width;
         data += "&winh="    + win.height;
         data += "&docw="    + doc.width;
         data += "&doch="    + doc.height;
-        data += "&info="    + _info;
-        data += "&task="    + TrackUI.settings.taskName;
-        data += "&layout="  + TrackUI.settings.layoutType;
-        data += "&cookies=" + document.cookie;
+        data += "&info="    + encodeURIComponent(_info.join("|||"));
+        data += "&task="    + encodeURIComponent(TrackUI.settings.taskName);
+        //data += "&layout="  + TrackUI.settings.layoutType;
+        //data += "&cookies=" + document.cookie;
         data += "&action="  + "init";
     // Send request
     TrackUI.send({
@@ -164,11 +164,11 @@ var TrackUI = {
   },
   /**
    * Sets the user ID, to append data for the same session.
-   * @param {string} response  XHR response text
+   * @param {string} response  XHR response object
    * @return void
    */
-  setUserId: function(response) {
-    _uid = parseInt(response);
+  setUserId: function(xhr) {
+    _uid = parseInt(xhr.responseText);
     TrackUI.log("setUserId:", _uid);
     if (_uid) {
       setInterval(function(){
@@ -183,7 +183,7 @@ var TrackUI = {
    */
   appendData: function(async) {
     var data  = "uid="     + _uid;
-        data += "&info="   + _info;
+        data += "&info="   + encodeURIComponent(_info.join("|||"));
         data += "&action=" + "append";
     // Send request
     TrackUI.send({
