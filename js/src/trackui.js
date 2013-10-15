@@ -305,8 +305,9 @@ var TrackUI = {
    */
   flush: function(e) {
     TrackUI.log("Flushing data...", _uid);
-    for (i = 0; i < _docEvents.length; ++i) TrackLib.Events.add(document, _docEvents[i], TrackUI.docHandler);
-    for (i = 0; i < _winEvents.length; ++i) TrackLib.Events.add(window, _winEvents[i], TrackUI.winHandler);
+    var i;
+    for (i = 0; i < _docEvents.length; ++i) TrackLib.Events.remove(document, _docEvents[i], TrackUI.docHandler);
+    for (i = 0; i < _winEvents.length; ++i) TrackLib.Events.remove(window, _winEvents[i], TrackUI.winHandler);
       
     // Don't use asynchronous requests here, otherwise this won't work
     if (_uid) {
