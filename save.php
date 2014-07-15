@@ -56,7 +56,7 @@ if ($_POST['action'] == "init") {
   while (is_file(LOGDIR."/".$fid.LOGEXT)) $fid++;
   
   // Save data for the first time
-  $header = "cursor timestamp xpos ypos event xpath attrs" .PHP_EOL;
+  $header = "cursor timestamp xpos ypos event xpath attrs extras" .PHP_EOL;
   file_put_contents(LOGDIR."/".$fid.LOGEXT, $header.$info_data);
   
   // Save metadata

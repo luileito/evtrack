@@ -63,6 +63,8 @@ var TrackUI = {
     // A name that identifies the current task.
     // Useful to filter logs by e.g. tracking campaign ID.
     taskName: "evtrack",
+    // A custom function to execute on each recording tick.
+    callback: null,
     // Main layout content diagramation; a.k.a 'how page content flows'. XXX: Actually not used.
     // Possible values are the following ones: 
     //   "left" (fixed), "right" (fixed), "center" (fixed and centered), or "liquid" (adaptable, default behavior).
@@ -240,8 +242,12 @@ var TrackUI = {
     if (register) {
       var cursorPos = TrackUI.getMousePos(e), 
           elemXpath = TrackLib.XPath.getXPath(e.target),
-          elemAttrs = TrackLib.Util.serializeAttrs(e.target);
-      TrackUI.fillInfo(e.id, timeNow, cursorPos.x, cursorPos.y, eventName, elemXpath, elemAttrs);
+          elemAttrs = TrackLib.Util.serializeAttrs(e.target),
+          extraInfo = [];
+      if (typeof TrackUI.settings.callback === 'function') {
+        extraInfo = TrackLib.Util.serializeAttrs(TrackUI.settings.callback(e));
+      }
+      TrackUI.fillInfo(e.id, timeNow, cursorPos.x, cursorPos.y, eventName, elemXpath, elemAttrs, extraInfo);
       _time = timeNow;
     }
   },
