@@ -7,14 +7,16 @@ var document = window.document;
 var _docEvents  = "mousedown mouseup mousemove mouseover mouseout mousewheel ";
     _docEvents += "touchstart touchend touchmove keydown keyup keypress ";
     _docEvents += "click dblclick scroll change select submit reset contextmenu cut copy paste";
-
-var _winEvents = "load unload beforeunload blur focus resize error online offline";
-
+var _winEvents  = "load unload beforeunload blur focus resize error online offline";
 // Convert these event lists to actual array lists
 _docEvents = _docEvents.split(" ");
 _winEvents = _winEvents.split(" ");
 // Save a shortcut for "*" events
 var _allEvents = _docEvents.concat(_winEvents);
+
+var ARGS_SEPARATOR = " "    // Arguments separator for the logged data
+  , INFO_SEPARATOR = "|||"  // This one must match that of save.php (INFSEP)
+  ;
 
 var _uid  = 0  // Unique user ID, assigned by the server
   , _time = 0  // Tracking time, for pollingMs
@@ -148,7 +150,7 @@ var TrackUI = {
         data += "&winh="    + win.height;
         data += "&docw="    + doc.width;
         data += "&doch="    + doc.height;
-        data += "&info="    + encodeURIComponent(_info.join("|||"));
+        data += "&info="    + encodeURIComponent(_info.join(INFO_SEPARATOR));
         data += "&task="    + encodeURIComponent(TrackUI.settings.taskName);
         //data += "&layout="  + TrackUI.settings.layoutType;
         //data += "&cookies=" + document.cookie;
@@ -183,7 +185,7 @@ var TrackUI = {
    */
   appendData: function(async) {
     var data  = "uid="     + _uid;
-        data += "&info="   + encodeURIComponent(_info.join("|||"));
+        data += "&info="   + encodeURIComponent(_info.join(INFO_SEPARATOR));
         data += "&action=" + "append";
     // Send request
     TrackUI.send({
@@ -295,7 +297,7 @@ var TrackUI = {
    */
   fillInfo: function() {
     var args = [].slice.apply(arguments);
-    _info.push( args.join(" ") );
+    _info.push( args.join(ARGS_SEPARATOR) );
     TrackUI.log(args);
   },
   /**

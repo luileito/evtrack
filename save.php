@@ -10,7 +10,7 @@
 
 define('LOGDIR', "logs");
 define('LOGEXT', ".csv");
-define('FLDSEP', " "); // Not used yet
+define('INFSEP', "|||"); // Must match that of defined in trackui.js (INFO_SEPARATOR)
 
 // Enable CORS
 header('Access-Control-Allow-Origin: *');
@@ -44,7 +44,7 @@ if (get_magic_quotes_gpc()) {
 }
 
 // Convert JS array to newline-delimited entries
-$info_data = str_replace("|||", PHP_EOL, $_POST['info']) .PHP_EOL;
+$info_data = str_replace(INFSEP, PHP_EOL, $_POST['info']) .PHP_EOL;
 
 // Ensure that our dir exists
 if (!is_dir(LOGDIR)) mkdir(LOGDIR);
