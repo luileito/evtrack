@@ -53,7 +53,7 @@
     if (loaders.length === 0) {
       // Remove load.js and execute init fn
       currentScript.parentNode.removeChild(currentScript);
-      deferredInit();
+      if (typeof deferredInit === 'function') deferredInit();
     }
   };
 
