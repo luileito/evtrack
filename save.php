@@ -47,7 +47,7 @@ if (get_magic_quotes_gpc()) {
 $info_data = str_replace(INFSEP, PHP_EOL, $_POST['info']) .PHP_EOL;
 
 // Ensure that our dir exists
-if (!is_dir(LOGDIR)) mkdir(LOGDIR);
+if (!is_dir(LOGDIR) && !mkdir(LOGDIR)) exit;
 
 if ($_POST['action'] == "init") {
 
