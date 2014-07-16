@@ -243,9 +243,9 @@ var TrackUI = {
       var cursorPos = TrackUI.getMousePos(e), 
           elemXpath = TrackLib.XPath.getXPath(e.target),
           elemAttrs = TrackLib.Util.serializeAttrs(e.target),
-          extraInfo = [];
+          extraInfo = {};
       if (typeof TrackUI.settings.callback === 'function') {
-        extraInfo = TrackLib.Util.serializeAttrs(TrackUI.settings.callback(e));
+        extraInfo = JSON.stringify(TrackUI.settings.callback(e));
       }
       TrackUI.fillInfo(e.id, timeNow, cursorPos.x, cursorPos.y, eventName, elemXpath, elemAttrs, extraInfo);
       _time = timeNow;
