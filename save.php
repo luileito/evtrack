@@ -10,7 +10,7 @@
 
 define('LOGDIR', "logs");
 define('LOGEXT', ".csv");
-define('FLDSEP', " "); // Not used yet
+define('INFSEP', "|||"); // Must match that of defined in trackui.js (INFO_SEPARATOR)
 
 // Enable CORS
 header('Access-Control-Allow-Origin: *');
@@ -44,10 +44,10 @@ if (get_magic_quotes_gpc()) {
 }
 
 // Convert JS array to newline-delimited entries
-$info_data = str_replace("|||", PHP_EOL, $_POST['info']) .PHP_EOL;
+$info_data = str_replace(INFSEP, PHP_EOL, $_POST['info']) .PHP_EOL;
 
 // Ensure that our dir exists
-if (!is_dir(LOGDIR)) mkdir(LOGDIR);
+if (!is_dir(LOGDIR) && !mkdir(LOGDIR)) exit;
 
 if ($_POST['action'] == "init") {
 
@@ -56,7 +56,7 @@ if ($_POST['action'] == "init") {
   while (is_file(LOGDIR."/".$fid.LOGEXT)) $fid++;
   
   // Save data for the first time
-  $header = "cursor timestamp xpos ypos event xpath attrs" .PHP_EOL;
+  $header = "cursor timestamp xpos ypos event xpath attrs extras" .PHP_EOL;
   file_put_contents(LOGDIR."/".$fid.LOGEXT, $header.$info_data);
   
   // Save metadata
