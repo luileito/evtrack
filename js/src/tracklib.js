@@ -289,8 +289,6 @@ TrackLib.Events = {
      * @return void
      */
     domReady: function(callback) {
-      if (arguments.callee.done) return;
-      arguments.callee.done = true;
       if (document.addEventListener) {
         // W3C browsers
         document.addEventListener('DOMContentLoaded', callback, false);
