@@ -245,9 +245,9 @@ var TrackUI = {
           elemAttrs = TrackLib.Util.serializeAttrs(e.target),
           extraInfo = {};
       if (typeof TrackUI.settings.callback === 'function') {
-        extraInfo = JSON.stringify(TrackUI.settings.callback(e));
+        extraInfo = TrackUI.settings.callback(e);
       }
-      TrackUI.fillInfo(e.id, timeNow, cursorPos.x, cursorPos.y, eventName, elemXpath, elemAttrs, extraInfo);
+      TrackUI.fillInfo(e.id, timeNow, cursorPos.x, cursorPos.y, eventName, elemXpath, elemAttrs, JSON.stringify(extraInfo));
       _time = timeNow;
     }
   },
