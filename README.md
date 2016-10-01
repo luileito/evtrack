@@ -145,4 +145,4 @@ If you use this software in any academic project, please cite it as:
 
 ## License
 
-This software is dual-licensed under the MIT and LGPL v3 licenses. See the [license](tree/master/license) dir.
+This software is dual-licensed under the MIT and LGPL v3 licenses. See the [license](https://github.com/luileito/evtrack/blob/master/license) dir.
