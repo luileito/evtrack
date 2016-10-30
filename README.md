@@ -4,7 +4,11 @@ Event tracking on websites using plain old JavaScript.
 
 ## Usage
 
-Just add `load.min.js` to your page and configure tracking options.
+* For regular pages:
+  Just add `load.min.js` to your page and configure tracking options.
+
+* For browser extensions:
+  Add `tracklib.min.js` and `trackui.min.js` (in this order) to your `manifest.json` (or similar) and configure tracking options.
 
 ### Example 1
 
@@ -43,6 +47,25 @@ Capture all mouse events every 500 ms.
 })();
 </script>
 ```
+
+### Example 3
+
+Use the default settings within a Chrome extension.
+
+First, add the following snippet to your `manifest.json` file:
+
+```json
+"content_scripts": [{
+  "js": [
+    "path/to/evtrack/tracklib.min.js",
+    "path/to/evtrack/trackui.min.js",
+    "main.js"
+  ]
+}],
+```
+
+Then, add `TrackUI.record()` in `main.js`.
+
 
 ## Default tracking settings
 
@@ -86,7 +109,7 @@ The `settings` object has the following defaults:
 
 ### Result
 
-For each session, you'll have a `logs` directory with:
+For each browsed page, you'll have in the `logs` directory the following files:
 
 1. A CSV file with 8 fields. Example:
 
@@ -96,7 +119,7 @@ cursor timestamp xpos ypos event xpath attrs extras
 ...
 ```
 
-* The `cursor` column indicates the cursor ID. Will be `0` for a regular computer mouse, or an integer indicating the finger ID for touch-capable browser.
+* The `cursor` column indicates the cursor ID. Will be `0` for a regular computer mouse, or an integer indicating the finger ID for touch-capable browsers.
 
 * The `timestamp` column indicates the timestamp of the event, with millisecond precision.
 
@@ -106,7 +129,7 @@ cursor timestamp xpos ypos event xpath attrs extras
 
 * The `xpath` column indicates the target element that relates to the event, [in XPath notation](https://en.wikipedia.org/wiki/XPath).
 
-* The `xpath` column indicates the element's attributes, if any.
+* The `attrs` column indicates the element attributes, if any.
 
 * The `extras` column is populated with the result of the `callback` setting you've set.
 
@@ -125,7 +148,8 @@ cursor timestamp xpos ypos event xpath attrs extras
  <task>evtrack</task>
 </data>
 ```
-The `<task />` element is the value you've set in the `taskName` setting. Useful to annotate a particular tracking campaign's ID, an experimental user group, etc.
+The `<task />` element is the value you've set in the `taskName` setting.
+This is useful to annotate a particular tracking campaign's ID, an experimental user group, etc.
 
 ## Citation
 
@@ -145,4 +169,5 @@ If you use this software in any academic project, please cite it as:
 
 ## License
 
-This software is dual-licensed under the MIT and LGPL v3 licenses. See the [license](https://github.com/luileito/evtrack/blob/master/license) dir.
+This software is dual-licensed under the MIT and LGPL v3 licenses.
+See the [license](https://github.com/luileito/evtrack/blob/master/license) dir.
