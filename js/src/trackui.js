@@ -23,7 +23,6 @@ var _uid  = 0  // Unique user ID, assigned by the server
   , _info = [] // Registered information is: cursorId, timestamp, xpos, ypos, event, xpath, attrs
   ;
 
-  
 /**
  * A small lib to track the user activity by listening to browser events.
  * @author Luis Leiva
@@ -82,8 +81,10 @@ var TrackUI = {
   record: function(config) {
     _time = new Date().getTime();
     // Override settings
-    for (var prop in TrackUI.settings) if (config.hasOwnProperty(prop) && config[prop] !== null) {
-      TrackUI.settings[prop] = config[prop];
+    for (var prop in TrackUI.settings) {
+      if (config.hasOwnProperty(prop) && config[prop] !== null) {
+        TrackUI.settings[prop] = config[prop];
+      }
     }
     TrackUI.log("Recording starts...", _time, TrackUI.settings);
     TrackUI.addEventListeners();
@@ -108,7 +109,7 @@ var TrackUI = {
       TrackUI.addCustomEventListeners(_allEvents);
     } else {
       TrackUI.log("Settings polling events...");
-      TrackUI.settings.pollingEvents = TrackUI.settings.pollingEvents.split(" ");    
+      TrackUI.settings.pollingEvents = TrackUI.settings.pollingEvents.split(" ");
       TrackUI.addCustomEventListeners(TrackUI.settings.pollingEvents);
     }
     // Flush data on closing the window/tab
@@ -145,7 +146,7 @@ var TrackUI = {
    * @return void
    */
   initNewData: function(async) {
-    var win = TrackLib.Dimension.getWindowSize(), 
+    var win = TrackLib.Dimension.getWindowSize(),
         doc = TrackLib.Dimension.getDocumentSize(),
         data  = "url="      + encodeURIComponent(window.location.href);
         data += "&screenw=" + screen.width;
@@ -161,8 +162,8 @@ var TrackUI = {
         data += "&action="  + "init";
     // Send request
     TrackUI.send({
-      async:    async,    
-      postdata: data, 
+      async:    async,
+      postdata: data,
       callback: TrackUI.setUserId
     });
     // Clean up
@@ -264,7 +265,7 @@ var TrackUI = {
    */
   touchHandler: function(e) {
     e = TrackLib.Events.fix(e);
-    
+
     var touches = e.changedTouches; // better
     if (touches) for (var i = 0, touch; i < touches.length; ++i) {
       touch = touches[i];
@@ -281,7 +282,7 @@ var TrackUI = {
    */
   getMousePos: function(e) {
     e = TrackLib.Events.fix(e);
-    
+
     var cx = 0, cy = 0;
     if (e.pageX || e.pageY) {
       cx = e.pageX;
@@ -293,7 +294,7 @@ var TrackUI = {
     // Sometimes the mouse coordinates are negative (e.g., in Opera)
     if (!cx || cx < 0) cx = 0;
     if (!cy || cy < 0) cy = 0;
-    
+
     return { x:cx, y:cy };
   },
   /**
@@ -304,7 +305,7 @@ var TrackUI = {
    * @param {integer} posY    Cursor Y position
    * @param {string}  event   Related event name
    * @param {string}  xpath   Related element in XPath notation
-   * @param {string}  attrs   Serialized node attributes   
+   * @param {string}  attrs   Serialized node attributes
    * @return void
    */
   fillInfo: function() {
@@ -320,9 +321,12 @@ var TrackUI = {
   flush: function(e) {
     TrackUI.log("Flushing data...", _uid);
     var i;
-    for (i = 0; i < _docEvents.length; ++i) TrackLib.Events.remove(document, _docEvents[i], TrackUI.docHandler);
-    for (i = 0; i < _winEvents.length; ++i) TrackLib.Events.remove(window, _winEvents[i], TrackUI.winHandler);
-      
+    for (i = 0; i < _docEvents.length; ++i) {
+      TrackLib.Events.remove(document, _docEvents[i], TrackUI.docHandler);
+    }
+    for (i = 0; i < _winEvents.length; ++i) {
+      TrackLib.Events.remove(window, _winEvents[i], TrackUI.winHandler);
+    }
     // Don't use asynchronous requests here, otherwise this won't work
     if (_uid) {
       TrackUI.appendData(false);
@@ -330,7 +334,7 @@ var TrackUI = {
       TrackUI.initNewData(false);
     }
   },
-  
+
   log: function() {
     if (TrackUI.settings.debug && typeof console.log === 'function') {
       console.log.apply(console, arguments);
