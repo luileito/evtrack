@@ -72,7 +72,7 @@ Then, add `TrackUI.record()` in `main.js`.
 The `settings` object has the following defaults:
 
 ```javascript
-{
+TrackUI.record({
   // The server where logs will be stored.
   postServer: "http://my.server.org/save.script",
   // The interval (in seconds) to post data to the server.
@@ -102,16 +102,18 @@ The `settings` object has the following defaults:
   taskName: "evtrack",
   // A custom function to execute on each recording tick.
   callback: null,
+  // Whether to dump element attributes together with each recorded event.
+  saveAttributes: true,
   // Enable this to display some debug information
   debug: false
-}
+})
 ```
 
 ### Result
 
 For each browsed page, you'll have in the `logs` directory the following files:
 
-1. A CSV file with 8 fields. Example:
+1. A space-delimited CSV-like file with 8 columns. Example:
 
 ```csv
 cursor timestamp xpos ypos event xpath attrs extras

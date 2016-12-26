@@ -65,8 +65,10 @@ var TrackUI = {
     taskName: "evtrack",
     // A custom function to execute on each recording tick.
     callback: null,
+    // Whether to dump element attributes together with each recorded event.
+    saveAttributes: true,
     // Main layout content diagramation; a.k.a 'how page content flows'. XXX: Actually not used.
-    // Possible values are the following ones: 
+    // Possible values are the following ones:
     //   "left" (fixed), "right" (fixed), "center" (fixed and centered), or "liquid" (adaptable, default behavior).
     layoutType: "liquid",
     // Enable this to display some debug information
@@ -234,16 +236,20 @@ var TrackUI = {
   eventHandler: function(e) {
     e = TrackLib.Events.fix(e);
 
-    var timeNow  = new Date().getTime(), eventName = e.type, register = true;
+    var timeNow  = new Date().getTime()
+      , eventName = e.type
+      , register = true
+      ;
     if (TrackUI.settings.pollingMs > 0 && TrackUI.settings.pollingEvents.indexOf(eventName) > -1) {
       register = (timeNow - _time >= TrackUI.settings.pollingMs);
     }
-    
+
     if (register) {
-      var cursorPos = TrackUI.getMousePos(e), 
-          elemXpath = TrackLib.XPath.getXPath(e.target),
-          elemAttrs = TrackLib.Util.serializeAttrs(e.target),
-          extraInfo = {};
+      var cursorPos = TrackUI.getMousePos(e)
+        , elemXpath = TrackLib.XPath.getXPath(e.target)
+        , elemAttrs = TrackUI.settings.saveAttributes ? TrackLib.Util.serializeAttrs(e.target) : '{}'
+        , extraInfo = {}
+        ;
       if (typeof TrackUI.settings.callback === 'function') {
         extraInfo = TrackUI.settings.callback(e);
       }
