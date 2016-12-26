@@ -36,7 +36,7 @@ var TrackUI = {
    */
   settings: {
     // The server where logs will be stored.
-    postServer: "http://my.server.org/save.script",
+    postServer: "//my.server.org/save.script",
     // The interval (in seconds) to post data to the server.
     postInterval: 30,
     // Events to be tracked whenever the browser fires them. Default:

@@ -1,25 +1,48 @@
 # evtrack
 
 Event tracking on websites using plain old JavaScript.
+No third-party libraries or external dependencies. :smiley:
 
 ## Usage
 
-* For regular pages:
-  Just add `load.min.js` to your page and configure tracking options.
+* For web pages:
+  Just add `load.min.js` to your page (e.g. inside `<head>` element or right before the closing `</body>` tag) and configure tracking options.
 
 * For browser extensions:
   Add `tracklib.min.js` and `trackui.min.js` (in this order) to your `manifest.json` (or similar) and configure tracking options.
 
 ### Example 1
 
-Capture all mouse clicks and every mouse movement at 50 ms.
+Default configuration.
+Capture [any](https://github.com/luileito/evtrack/blob/master/js/src/trackui.js#L6) browser event whenever it happens.
 
 ```javascript
 <script type="text/javascript" src="/path/to/load.min.js"></script>
 <script type="text/javascript">
 (function(){
 
-  TrackUI.record(
+  TrackUI.record({
+    // Remember to point to save.php (or similar) to write the log files.
+    postServer: "/path/to/save.php"
+  });
+
+})();
+</script>
+```
+
+### Example 2
+
+Capture all mouse clicks whenever they happen.
+Also capture every mouse movement at 50 ms.
+All other browser events are ignored.
+
+```javascript
+<script type="text/javascript" src="/path/to/load.min.js"></script>
+<script type="text/javascript">
+(function(){
+
+  TrackUI.record({
+    postServer: "/path/to/save.php",
     regularEvents: "click",
     pollingEvents: "mousemove",
     pollingMs: 50,
@@ -29,16 +52,17 @@ Capture all mouse clicks and every mouse movement at 50 ms.
 </script>
 ```
 
-### Example 2
+### Example 3
 
-Capture all mouse events every 500 ms.
+Capture any browser event every 500 ms.
 
 ```javascript
 <script type="text/javascript" src="/path/to/load.min.js"></script>
 <script type="text/javascript">
 (function(){
 
-  TrackUI.record(
+  TrackUI.record({
+    postServer: "/path/to/save.php",
     regularEvents: "",
     pollingEvents: "*",
     pollingMs: 500,
@@ -48,23 +72,25 @@ Capture all mouse events every 500 ms.
 </script>
 ```
 
-### Example 3
+### Example 4
 
-Use the default settings within a Chrome extension.
+Use the default settings within a Chrome extension:
 
-First, add the following snippet to your `manifest.json` file:
+  1. Add the following snippet to your `manifest.json` file:
 
-```json
-"content_scripts": [{
-  "js": [
-    "path/to/evtrack/tracklib.min.js",
-    "path/to/evtrack/trackui.min.js",
-    "main.js"
-  ]
-}],
-```
+    ```json
+    ...
+    "content_scripts": [{
+      "js": [
+        "path/to/evtrack/tracklib.min.js",
+        "path/to/evtrack/trackui.min.js",
+        "main.js"
+      ]
+    }],
+    ...
+  ```
 
-Then, add `TrackUI.record()` in `main.js`.
+  2. Add `TrackUI.record(settings)` in `main.js`, where `settings` holds your tracking options.
 
 
 ## Default tracking settings
@@ -74,7 +100,7 @@ The `settings` object has the following defaults:
 ```javascript
 TrackUI.record({
   // The server where logs will be stored.
-  postServer: "http://my.server.org/save.script",
+  postServer: "//my.server.org/save.script",
   // The interval (in seconds) to post data to the server.
   postInterval: 30,
   // Events to be tracked whenever the browser fires them. Default:
@@ -113,51 +139,54 @@ TrackUI.record({
 
 For each browsed page, you'll have in the `logs` directory the following files:
 
-1. A space-delimited CSV-like file with 8 columns. Example:
+  1. A space-delimited CSV-like file with 8 columns. Example:
 
-```csv
-cursor timestamp xpos ypos event xpath attrs extras
-0 1405503114382 0 0 load / {}
-...
-```
+    ```csv
+    cursor timestamp xpos ypos event xpath attrs extras
+    0 1405503114382 0 0 load / {}
+    ...
+    ```
 
-* The `cursor` column indicates the cursor ID. Will be `0` for a regular computer mouse, or an integer indicating the finger ID for touch-capable browsers.
+    * The `cursor` column indicates the cursor ID.
+      Will be `0` for a regular computer mouse, or an integer indicating the finger ID for touch-capable browsers.
 
-* The `timestamp` column indicates the timestamp of the event, with millisecond precision.
+    * The `timestamp` column indicates the timestamp of the event, with millisecond precision.
 
-* The `xpos` and `ypos` columns indicate the `x` and `y` position of the cursor, respectively.
+    * The `xpos` and `ypos` columns indicate the `x` and `y` position of the cursor, respectively.
+      For events that do *not* relate to any mouse event (e.g. `load` or `blur`), these values will be `0`.
 
-* The `event` column indicates the browser's event name.
+    * The `event` column indicates the browser's event name.
 
-* The `xpath` column indicates the target element that relates to the event, [in XPath notation](https://en.wikipedia.org/wiki/XPath).
+    * The `xpath` column indicates the target element that relates to the event, [in XPath notation](https://en.wikipedia.org/wiki/XPath).
 
-* The `attrs` column indicates the element attributes, if any.
+    * The `attrs` column indicates the element attributes, if any.
 
-* The `extras` column is populated with the result of the `callback` setting you've set.
+    * The `extras` column is populated with the result of the `callback` setting you've set.
 
-2. An XML file with some metadata. Example:
+  2. An XML file with some metadata. Example:
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<data>
- <ip>127.0.0.1</ip>
- <date>Wed, 16 Jul 2014 11:32:24 +0200</date>
- <url>http://localhost/evtrack/test.html</url>
- <ua>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36</ua>
- <screen>1600x900</screen>
- <window>1551x548</window>
- <document>1551x548</document>
- <task>evtrack</task>
-</data>
-```
-The `<task />` element is the value you've set in the `taskName` setting.
-This is useful to annotate a particular tracking campaign's ID, an experimental user group, etc.
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <data>
+     <ip>127.0.0.1</ip>
+     <date>Wed, 16 Jul 2014 11:32:24 +0200</date>
+     <url>http://localhost/evtrack/test.html</url>
+     <ua>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36</ua>
+     <screen>1600x900</screen>
+     <window>1551x548</window>
+     <document>1551x548</document>
+     <task>evtrack</task>
+    </data>
+    ```
+
+    The `<task />` element is the value you've set in the `taskName` setting.
+    This is useful to annotate a particular tracking campaign's ID, an experimental user group, etc.
 
 ## Citation
 
 If you use this software in any academic project, please cite it as:
 
-* L. A. Leiva and R. Vivó. Web Browsing Behavior Analysis and Interactive Hypervideo. _ACM Transactions on the Web_ **7**(4), 2013.
+* Leiva, L.A. and Vivó, R. Web Browsing Behavior Analysis and Interactive Hypervideo. _ACM Transactions on the Web_ **7**(4), 2013.
 ```bibtex
 @Article{Leiva13-tweb,
  author   = {Luis A. Leiva and Roberto Viv\'o},
