@@ -5,24 +5,24 @@
   <title>Test</title>
   <!-- Use the minified version in production sites -->
   <!-- For testing you can point to: js/src/load.js -->
-  <script type="text/javascript" src="js/load.min.js"></script>
-  <script type="text/javascript">
+  <script src="js/load.min.js"></script>
+  <script>
   (function(){
 
     // Please read js/src/trackui.js for the API and code documentation.
     TrackUI.record({
       debug: true,
-      
+
       // Example: track all clicks and poll mouse movements at 50 ms
       //regularEvents: "click",
       //pollingEvents: "mousemove",
       //pollingMs: 50,
-      
+
       // Example: pure event polling at 500 ms
       //regularEvents: "",
       //pollingEvents: "*",
       //pollingMs: 500,
-      
+
       postServer: "save.php"
     });
 

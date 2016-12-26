@@ -17,8 +17,8 @@ Default configuration.
 Capture [any](https://github.com/luileito/evtrack/blob/master/js/src/trackui.js#L6) browser event whenever it happens.
 
 ```javascript
-<script type="text/javascript" src="/path/to/load.min.js"></script>
-<script type="text/javascript">
+<script src="/path/to/load.min.js"></script>
+<script>
 (function(){
 
   TrackUI.record({
@@ -37,8 +37,8 @@ Also capture every mouse movement at 50 ms.
 All other browser events are ignored.
 
 ```javascript
-<script type="text/javascript" src="/path/to/load.min.js"></script>
-<script type="text/javascript">
+<script src="/path/to/load.min.js"></script>
+<script>
 (function(){
 
   TrackUI.record({
@@ -57,8 +57,8 @@ All other browser events are ignored.
 Capture any browser event every 500 ms.
 
 ```javascript
-<script type="text/javascript" src="/path/to/load.min.js"></script>
-<script type="text/javascript">
+<script src="/path/to/load.min.js"></script>
+<script>
 (function(){
 
   TrackUI.record({
