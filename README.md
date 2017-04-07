@@ -76,21 +76,19 @@ Capture any browser event every 500 ms.
 
 Use the default settings within a Chrome extension:
 
-  1. Add the following snippet to your `manifest.json` file:
+1. Add the following snippet to your `manifest.json` file:
 
-  ```javascript
-  ...
-  "content_scripts": [{
-    "js": [
-      "path/to/evtrack/tracklib.min.js",
-      "path/to/evtrack/trackui.min.js",
-      "main.js"
-    ]
-  }],
-  ...
-  ```
+```javascript
+"content_scripts": [{
+  "js": [
+    "path/to/evtrack/tracklib.min.js",
+    "path/to/evtrack/trackui.min.js",
+    "main.js"
+  ]
+}],
+```
 
-  2. Add `TrackUI.record(settings)` in `main.js`, where `settings` holds your tracking options.
+2. Add `TrackUI.record(settings)` in `main.js`, where `settings` holds your tracking options.
 
 
 ## Default tracking settings
@@ -139,48 +137,44 @@ TrackUI.record({
 
 For each browsed page, you'll have in the `logs` directory the following files:
 
-  1. A space-delimited CSV-like file with 8 columns. Example:
+1. A space-delimited CSV-like file with 8 columns.
+2. An XML file with some metadata.
 
-    ```csv
-    cursor timestamp xpos ypos event xpath attrs extras
-    0 1405503114382 0 0 load / {}
-    ...
-    ```
+#### CSV file example
 
-    * The `cursor` column indicates the cursor ID.
-      Will be `0` for a regular computer mouse, or an integer indicating the finger ID for touch-capable browsers.
+```csv
+cursor timestamp xpos ypos event xpath attrs extras
+0 1405503114382 0 0 load / {}
+```
+Where:
+* The `cursor` column indicates the cursor ID.
+  Will be `0` for a regular computer mouse, or an integer indicating the finger ID for touch-capable browsers.
+* The `timestamp` column indicates the timestamp of the event, with millisecond precision.
+* The `xpos` and `ypos` columns indicate the `x` and `y` position of the cursor, respectively.
+  For events that do *not* relate to any mouse event (e.g. `load` or `blur`), these values will be `0`.
+* The `event` column indicates the browser's event name.
+* The `xpath` column indicates the target element that relates to the event, [in XPath notation](https://en.wikipedia.org/wiki/XPath).
+* The `attrs` column indicates the element attributes, if any.
+* The `extras` column is populated with the result of the `callback` setting you've set.
 
-    * The `timestamp` column indicates the timestamp of the event, with millisecond precision.
+#### XML file example
 
-    * The `xpos` and `ypos` columns indicate the `x` and `y` position of the cursor, respectively.
-      For events that do *not* relate to any mouse event (e.g. `load` or `blur`), these values will be `0`.
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+ <ip>127.0.0.1</ip>
+ <date>Wed, 16 Jul 2014 11:32:24 +0200</date>
+ <url>http://localhost/evtrack/test.html</url>
+ <ua>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36</ua>
+ <screen>1600x900</screen>
+ <window>1551x548</window>
+ <document>1551x548</document>
+ <task>evtrack</task>
+</data>
+```
 
-    * The `event` column indicates the browser's event name.
-
-    * The `xpath` column indicates the target element that relates to the event, [in XPath notation](https://en.wikipedia.org/wiki/XPath).
-
-    * The `attrs` column indicates the element attributes, if any.
-
-    * The `extras` column is populated with the result of the `callback` setting you've set.
-
-  2. An XML file with some metadata. Example:
-
-    ```xml
-    <?xml version="1.0" encoding="UTF-8"?>
-    <data>
-     <ip>127.0.0.1</ip>
-     <date>Wed, 16 Jul 2014 11:32:24 +0200</date>
-     <url>http://localhost/evtrack/test.html</url>
-     <ua>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36</ua>
-     <screen>1600x900</screen>
-     <window>1551x548</window>
-     <document>1551x548</document>
-     <task>evtrack</task>
-    </data>
-    ```
-
-    The `<task />` element is the value you've set in the `taskName` setting.
-    This is useful to annotate a particular tracking campaign's ID, an experimental user group, etc.
+The `<task />` element is the value you've set in the `taskName` setting.
+This is useful to annotate a particular tracking campaign's ID, an experimental user group, etc.
 
 ## Citation
 
