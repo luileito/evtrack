@@ -78,16 +78,16 @@ Use the default settings within a Chrome extension:
 
   1. Add the following snippet to your `manifest.json` file:
 
-    ```json
-    ...
-    "content_scripts": [{
-      "js": [
-        "path/to/evtrack/tracklib.min.js",
-        "path/to/evtrack/trackui.min.js",
-        "main.js"
-      ]
-    }],
-    ...
+  ```javascript
+  ...
+  "content_scripts": [{
+    "js": [
+      "path/to/evtrack/tracklib.min.js",
+      "path/to/evtrack/trackui.min.js",
+      "main.js"
+    ]
+  }],
+  ...
   ```
 
   2. Add `TrackUI.record(settings)` in `main.js`, where `settings` holds your tracking options.
