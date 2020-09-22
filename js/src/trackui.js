@@ -175,7 +175,7 @@ var TrackUI = {
    * @return void
    */
   setUserId: function(xhr) {
-    _uid = parseInt(xhr.responseText);
+    _uid = xhr.responseText;
     TrackUI.log("setUserId:", _uid);
     if (_uid) {
       setInterval(function(){
