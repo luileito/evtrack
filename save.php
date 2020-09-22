@@ -2,15 +2,18 @@
 //error_reporting(0);   // Don't report errors
 //ignore_user_abort(1); // Allow running script in the background
 
-/* 
+/*
  * This is an example of how to handle TrackUI logs.
  * We are going to create .csv (plus .xml files) inside the logs dir.
  * Remember to assign write permissions to that dir.
+ *
+ * We will use PHP to store the log files, but any server-side technology is possible;
+ * you just need to rewrite how this file handles the data.
  */
 
 define('LOGDIR', "logs");
 define('LOGEXT', ".csv");
-define('INFSEP', "|||"); // Must match that of defined in trackui.js (INFO_SEPARATOR)
+define('INFSEP', "|||"); // Must match INFO_SEPARATOR in trackui.js
 
 // Enable CORS
 header('Access-Control-Allow-Origin: *');
@@ -28,7 +31,7 @@ if (isset($HTTP_RAW_POST_DATA)) {
   $data = explode('&', $HTTP_RAW_POST_DATA);
   foreach ($data as $val) {
     if (!empty($val)) {
-      list($key, $value) = explode('=', $val);   
+      list($key, $value) = explode('=', $val);
         $_POST[$key] = rawurldecode($value);
     }
   }
@@ -54,16 +57,17 @@ if ($_POST['action'] == "init") {
   $fid = (int)date("YmdHis");
   // Avoid duplicated file IDs
   while (is_file(LOGDIR."/".$fid.LOGEXT)) $fid++;
-  
-  // Save data for the first time
+
+  // Save data for the first time.
+  // The column separator must ARGS_SEPARATOR in trackui.js
   $header = "cursor timestamp xpos ypos event xpath attrs extras" .PHP_EOL;
   file_put_contents(LOGDIR."/".$fid.LOGEXT, $header.$info_data);
-  
+
   // Save metadata
   $xml  = '<?xml version="1.0" encoding="UTF-8"?>' .PHP_EOL;
   $xml .= '<data>' .PHP_EOL;
   $xml .= ' <ip>'.$_SERVER['REMOTE_ADDR'].'</ip>' .PHP_EOL;
-  $xml .= ' <date>'.date("r").'</date>' .PHP_EOL;  
+  $xml .= ' <date>'.date("r").'</date>' .PHP_EOL;
   $xml .= ' <url>'.htmlentities($_POST['url']).'</url>' .PHP_EOL;
   $xml .= ' <ua>'.$_SERVER['HTTP_USER_AGENT'].'</ua>' .PHP_EOL;
   $xml .= ' <screen>'.$_POST['screenw'] .'x'. $_POST['screenh'].'</screen>' .PHP_EOL;
@@ -72,14 +76,16 @@ if ($_POST['action'] == "init") {
   $xml .= ' <task>'.$_POST['task'].'</task>' .PHP_EOL;
   $xml .= '</data>' .PHP_EOL;
   file_put_contents(LOGDIR."/".$fid.".xml", $xml);
-  
+
   // Notify recording script
   echo $fid;
-  
+
 } else if ($_POST['action'] == "append") {
+
   // Don't write blank lines
   if (trim($info_data)) {
     file_put_contents(LOGDIR."/".$_POST['uid'].LOGEXT, $info_data, FILE_APPEND);
   }
+
 }
 ?>
