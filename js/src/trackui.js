@@ -26,7 +26,7 @@ var _uid  = 0  // Unique user ID, assigned by the server
 /**
  * A small lib to track the user activity by listening to browser events.
  * @author Luis Leiva
- * @version 0.2
+ * @version 0.3
  * @requires tracklib.js
  * @license Dual licensed under the MIT and GPL licenses.
  */
@@ -66,10 +66,6 @@ var TrackUI = {
     callback: null,
     // Whether to dump element attributes together with each recorded event.
     saveAttributes: true,
-    // Main layout content diagramation; a.k.a 'how page content flows'. XXX: Actually not used.
-    // Possible values are the following ones:
-    //   "left" (fixed), "right" (fixed), "center" (fixed and centered), or "liquid" (adaptable, default behavior).
-    layoutType: "liquid",
     // Enable this to display some debug information
     debug: false
   },
@@ -113,8 +109,8 @@ var TrackUI = {
       TrackUI.addCustomEventListeners(TrackUI.settings.pollingEvents);
     }
     // Flush data on closing the window/tab
-    var unload = (typeof window.onbeforeunload === 'function') ? "beforeunload" : "unload";
-    TrackLib.Events.add(window, unload, TrackUI.flush);
+    TrackLib.Events.add(window, 'beforeunload', TrackUI.flush);
+    TrackLib.Events.add(window, 'unload', TrackUI.flush);
   },
   /**
    * Adds custom event listeners.
@@ -148,24 +144,33 @@ var TrackUI = {
   initNewData: function(async) {
     var win = TrackLib.Dimension.getWindowSize(),
         doc = TrackLib.Dimension.getDocumentSize(),
-        data  = "url="      + encodeURIComponent(window.location.href);
-        data += "&screenw=" + screen.width;
-        data += "&screenh=" + screen.height;
-        data += "&winw="    + win.width;
-        data += "&winh="    + win.height;
-        data += "&docw="    + doc.width;
-        data += "&doch="    + doc.height;
-        data += "&info="    + encodeURIComponent(_info.join(INFO_SEPARATOR));
-        data += "&task="    + encodeURIComponent(TrackUI.settings.taskName);
-        //data += "&layout="  + TrackUI.settings.layoutType;
-        //data += "&cookies=" + document.cookie;
-        data += "&action="  + "init";
-    // Send request
-    TrackUI.send({
-      async:    async,
-      postdata: data,
-      callback: TrackUI.setUserId
-    });
+        data = {
+          url: encodeURIComponent(window.location.href),
+          screenw: screen.width,
+          screenh: screen.height,
+          winw: win.width,
+          winh: win.height,
+          docw: doc.width,
+          doch: doc.height,
+          info: encodeURIComponent(_info.join(INFO_SEPARATOR)),
+          task: encodeURIComponent(TrackUI.settings.taskName),
+          //cookies: encodeURIComponent(document.cookie),
+          action: "init"
+        };
+    // Try newer browser APIs for async Ajax requests
+    // NB: the data is sent as text/plain
+    if (!async && typeof navigator.sendBeacon === 'function') {
+      data.beacon = true;
+      var params = JSON.stringify(data);
+      navigator.sendBeacon(TrackUI.settings.postServer, params);
+    } else {
+      // Send request
+      TrackUI.send({
+        async: async,
+        postdata: data,
+        callback: TrackUI.setUserId
+      });
+    }
     // Clean up
     _info = [];
   },
@@ -189,14 +194,26 @@ var TrackUI = {
    * @return void
    */
   appendData: function(async) {
-    var data  = "uid="     + _uid;
-        data += "&info="   + encodeURIComponent(_info.join(INFO_SEPARATOR));
-        data += "&action=" + "append";
-    // Send request
-    TrackUI.send({
-      async:    async,
-      postdata: data
-    });
+    var data = {
+      uid: _uid,
+      info: encodeURIComponent(_info.join(INFO_SEPARATOR)),
+      action: "append"
+    };
+    // Try newer browser APIs for async Ajax requests
+    // NB: the data is sent as text/plain
+    if (!async && typeof navigator.sendBeacon === 'function') {
+      data.beacon = true;
+      var params = JSON.stringify(data);
+      navigator.sendBeacon(TrackUI.settings.postServer, params);
+    } else if (_info.length > 0) {
+      // Send request
+      TrackUI.send({
+        async: async,
+        postdata: data
+      });
+    } else {
+      TrackUI.log("Skipping empty request...");
+    }
     // Clean up
     _info = [];
   },
@@ -319,7 +336,7 @@ var TrackUI = {
    * @return void
    */
   flush: function(e) {
-    TrackUI.log("Flushing data...", _uid);
+    TrackUI.log("Flushing data...");
     var i;
     for (i = 0; i < _docEvents.length; ++i) {
       TrackLib.Events.remove(document, _docEvents[i], TrackUI.docHandler);
@@ -328,6 +345,7 @@ var TrackUI = {
       TrackLib.Events.remove(window, _winEvents[i], TrackUI.winHandler);
     }
     // Don't use asynchronous requests here, otherwise this won't work
+    // NB: Some browsers disallow sync AJAX requests on page unload
     if (_uid) {
       TrackUI.appendData(false);
     } else {
