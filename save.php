@@ -8,7 +8,7 @@
  * Remember to assign write permissions to that dir.
  *
  * We will use PHP to store the log files, but any server-side technology is possible;
- * you just need to rewrite how this file handles the data.
+ * you just need to write your custom data handling stuff.
  */
 
 define('LOGDIR', "logs");
@@ -53,8 +53,12 @@ if (get_magic_quotes_gpc()) {
   $_POST = stripslashes_deep($_POST);
 }
 
+// Some browsers might not send empty vars
+if (!isset($_POST['action'])) exit;
+
+$info_data = isset($_POST['info']) ? $_POST['info'] : '';
 // Convert JS array to newline-delimited entries
-$info_data = str_replace(INFSEP, PHP_EOL, $_POST['info']) .PHP_EOL;
+$info_data = str_replace(INFSEP, PHP_EOL, $info_data) .PHP_EOL;
 
 // Ensure that our dir exists
 if (!is_dir(LOGDIR) && !mkdir(LOGDIR)) exit;
