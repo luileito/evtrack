@@ -24,10 +24,17 @@ header('Access-Control-Max-Age: 86400'); // Cache preflight request
 // Exit early so that the page isn't fully loaded for OPTIONS requests
 if (strtolower($_SERVER['REQUEST_METHOD']) == 'options') exit;
 
-// If raw post data, this could be from IE8 XDomainRequest
-//if (isset($_POST) && !isset($HTTP_RAW_POST_DATA)) $HTTP_RAW_POST_DATA = file_get_contents('php://input');
-// Only use this if you want to populate $_POST in all instances
-if (isset($HTTP_RAW_POST_DATA)) {
+// If raw post data, this could be a beacon
+$headers = getallheaders();
+if (strpos($headers['Content-Type'], 'text/') !== FALSE) {
+  $buffer = file_get_contents('php://input');
+  $_POST = json_decode($buffer, TRUE);
+  foreach ($_POST as $key => $value) {
+    if (is_string($value)) {
+      $_POST[$key] = rawurldecode($value);
+    }
+  }
+} elseif (isset($HTTP_RAW_POST_DATA)) {
   $data = explode('&', $HTTP_RAW_POST_DATA);
   foreach ($data as $val) {
     if (!empty($val)) {
