@@ -24,11 +24,11 @@ header('Access-Control-Max-Age: 86400'); // Cache preflight request
 // Exit early so that the page isn't fully loaded for OPTIONS requests
 if (strtolower($_SERVER['REQUEST_METHOD']) == 'options') exit;
 
-// If raw post data, this could be a beacon
+// If raw post data, this is most likely a beacon
 $headers = getallheaders();
 if (strpos($headers['Content-Type'], 'text/') !== FALSE) {
-  $buffer = file_get_contents('php://input');
-  $_POST = json_decode($buffer, TRUE);
+  $input = file_get_contents('php://input');
+  $_POST = json_decode($input, TRUE);
   foreach ($_POST as $key => $value) {
     if (is_string($value)) {
       $_POST[$key] = rawurldecode($value);
@@ -39,11 +39,12 @@ if (strpos($headers['Content-Type'], 'text/') !== FALSE) {
   foreach ($data as $val) {
     if (!empty($val)) {
       list($key, $value) = explode('=', $val);
-        $_POST[$key] = rawurldecode($value);
+      $_POST[$key] = rawurldecode($value);
     }
   }
 }
 
+// NB: This function is deprecated and always returns FALSE as of PHP 5.4.0
 if (get_magic_quotes_gpc()) {
   function stripslashes_deep($value) {
     $value = is_array($value) ? array_map('stripslashes_deep', $value) : stripslashes($value);
@@ -70,11 +71,11 @@ if ($_POST['action'] == "init") {
   while (is_file(LOGDIR."/".$fid.LOGEXT)) $fid++;
 
   // Save data for the first time.
-  // The column separator must ARGS_SEPARATOR in trackui.js
+  // The column separator must match ARGS_SEPARATOR in trackui.js
   $header = "cursor timestamp xpos ypos event xpath attrs extras" .PHP_EOL;
   file_put_contents(LOGDIR."/".$fid.LOGEXT, $header.$info_data);
 
-  // Save metadata
+  // Save metadata as XML. It could be any other format, actually
   $xml  = '<?xml version="1.0" encoding="UTF-8"?>' .PHP_EOL;
   $xml .= '<data>' .PHP_EOL;
   $xml .= ' <ip>'.$_SERVER['REMOTE_ADDR'].'</ip>' .PHP_EOL;
