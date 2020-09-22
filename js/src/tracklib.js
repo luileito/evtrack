@@ -3,7 +3,7 @@
 /**
  * Auxiliary functions to track the user activity.
  * @author Luis Leiva
- * @version 0.2
+ * @version 0.3
  * @license Dual licensed under the MIT and GPL licenses.
  */
 var TrackLib = window.TrackLib || {};
@@ -21,7 +21,7 @@ TrackLib.XPath = {
         iterator = document.evaluate(xpath, document.documentElement, null, XPathResult.ANY_TYPE, null);
       } else {
         try {
-          // IE5 and later has implemented that [0] should be the first node, 
+          // IE5 and later has implemented that [0] should be the first node,
           // but according to the W3C standard it should have been [1]!
           document.setProperty("SelectionLanguage", "XPath");
           iterator = document.selectNodes(xpath);
@@ -29,10 +29,10 @@ TrackLib.XPath = {
           iterator = false;
         }
       }
-      
+
       return iterator;
     },
-    
+
     getXPathNodes: function(document, xpath) {
       var iterator = this.queryXPath(document, xpath);
       var result = [];
@@ -41,7 +41,7 @@ TrackLib.XPath = {
         result.push(item);
         item = iterator.iterateNext();
       }
-      
+
       return result;
     },
 
@@ -78,7 +78,7 @@ TrackLib.XPath = {
           }
         }
       }
-      
+
       return "/" + nodeNames.join("/");
     },
 
@@ -89,7 +89,7 @@ TrackLib.XPath = {
       for (var i = 0; i < list.length; i++) {
         if (list[i] == node) return i + 1;
       }
-      
+
       throw new Error("couldn't find node in parent's list: " + node.tagName);
     },
 
@@ -99,7 +99,7 @@ TrackLib.XPath = {
       for (var i = 0; i < list.length; i++) {
         if (list[i] == node) return i + 1;
       }
-      
+
       throw new Error("couldn't find node in parent's list: " + node.tagName);
     },
 
@@ -111,7 +111,7 @@ TrackLib.XPath = {
         }
         child = child.nextSibling;
       }
-      
+
       return result;
     },
 
@@ -123,7 +123,7 @@ TrackLib.XPath = {
         }
         child = child.nextSibling;
       }
-      
+
       return result;
     },
 
@@ -134,7 +134,7 @@ TrackLib.XPath = {
         if (node.nodeType == 1 && node.hasAttribute("id") && !absolute) return result;
         node = node.parentNode;
       }
-      
+
       return result;
     },
 
@@ -143,10 +143,10 @@ TrackLib.XPath = {
       for (var i in resultList) {
         result.push(resultList[i].nodeValue);
       }
-      
+
       return result;
     }
-  
+
 };
 /**
  * Ajax handling object.
@@ -173,7 +173,7 @@ TrackLib.XHR = {
       } catch(e) { continue; }
       break;
     }
-    
+
     return xmlhttp;
   },
   /**
@@ -197,12 +197,12 @@ TrackLib.XHR = {
       request = new XDomainRequest();
     }
     if (!request) return false;
-    
+
     var method = setup.postdata ? "POST" : "GET";
     var asynchronous = setup.hasOwnProperty('async') ? setup.async : true;
     // Start request
     request.open(method, setup.url, asynchronous);
-    
+
     var iecors = window.XDomainRequest && (request instanceof XDomainRequest);
     // Post requests must set the correct content type (not allowed under CORS + IE, though)
     if (setup.postdata && !iecors) {
@@ -220,6 +220,12 @@ TrackLib.XHR = {
           setup.callback(request);
         }
       };
+    }
+    // Include credentials on cross-origin requests (has no effect on same-site requests)
+    request.withCredentials = true;
+
+    if (typeof setup.postdata === 'object') {
+      setup.postdata = TrackLib.Util.serializeQuery(setup.postdata);
     }
     request.send(setup.postdata);
   }
@@ -264,7 +270,7 @@ TrackLib.Events = {
       } else { // Really old browser
         obj[type+fn] = null;
       }
-    }, 
+    },
     /**
      * Fixes event handling inconsistencies between browsers.
      * @param {object}  e Event
@@ -280,7 +286,7 @@ TrackLib.Events = {
       if (typeof e.metaKey === 'undefined') e.metaKey = e.ctrlKey;
       // Support multitouch events (index 0 is consistent with mobile devices)
       e.id = e.identifier || 0;
-      
+
       return e;
     },
     /**
@@ -330,7 +336,7 @@ TrackLib.Dimension = {
             : (d.documentElement && d.documentElement.clientHeight) ? d.documentElement.clientHeight
             : (d.body && d.body.clientHeight) ? d.body.clientHeight
             : 0;
-    
+
     return { width: w, height: h };
   },
   /**
@@ -349,7 +355,7 @@ TrackLib.Dimension = {
             : (d.body && d.body.scrollHeight > d.body.offsetHeight) ? d.body.scrollHeight
             : (d.body && d.body.offsetHeight) ? d.body.offsetHeight
             : 0;
-    
+
     return { width: w, height: h };
   },
   /**
@@ -361,11 +367,11 @@ TrackLib.Dimension = {
   getPageSize: function() {
     var win = this.getWindowSize(),
         doc = this.getDocumentSize();
-    
+
     // Find max values from this group
     var w = (doc.width < win.width) ? win.width : doc.width;
     var h = (doc.height < win.height) ? win.height : doc.height;
-    
+
     return { width: w, height: h };
   }
 
@@ -386,7 +392,7 @@ TrackLib.Util = {
       }
       prevDomain = arguments[i];
     }
-    
+
     return sameDomain;
   },
   /**
@@ -398,14 +404,14 @@ TrackLib.Util = {
     link.href = url;
     d = link.hostname;
     link = null; // free
-    
+
     return d;
   },
   /**
    * Serializes the attributes of a DOM node.
    * @param {object} elem  DOM node
    * @return {string} JSON representation of the node attributes
-   */   
+   */
   serializeAttrs: function(elem) {
     var obj = {};
     if (elem && elem.attributes) {
@@ -417,8 +423,23 @@ TrackLib.Util = {
         }
       }
     }
-    
+
     return JSON.stringify(obj);
+  },
+  /**
+   * Serializes object as a query string.
+   * @param {object} elem  Source Object
+   * @return {string} Query string representation of the object
+   */
+  serializeQuery: function(obj) {
+    var queryStr = "", i = 0;
+    for (var p in obj) {
+      if (!obj.hasOwnProperty(p)) continue;
+      if (i > 0) queryStr += "&";
+      queryStr += p + "=" + obj[p];
+      i++;
+    }
+    return queryStr;
   }
-  
+
 };
