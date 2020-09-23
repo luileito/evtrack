@@ -29,6 +29,8 @@
 
     /**
      * A small lib to track the user activity by listening to browser events.
+     * Written in plain 'ol JavaScript. No dependencies. Also works in old browsers.
+     * @namespace TrackUI
      * @author Luis Leiva
      * @version 0.3
      * @requires tracklib.js
@@ -38,6 +40,7 @@
         /**
          * Default settings -- can be overridden on init.
          * @see README.md
+         * @memberof TrackUI
          */
         settings: {
             // The server where logs will be stored.
@@ -77,6 +80,7 @@
         },
         /**
          * Init method.
+         * @memberof TrackUI
          * @param {object} config - Tracking Settings
          * @see TrackUI.settings
          * @return {void}
@@ -97,6 +101,7 @@
         },
         /**
          * Register event listeners.
+         * @memberof TrackUI
          * @return {void}
          */
         addEventListeners: function() {
@@ -121,6 +126,7 @@
         },
         /**
          * Register custom event listeners.
+         * @memberof TrackUI
          * @param {array} eventList - List of DOM events (strings)
          * @return {void}
          */
@@ -146,6 +152,7 @@
         },
         /**
          * Send data for the first time for a given (new) user.
+         * @memberof TrackUI
          * @param {boolean} async - Whether the request should be asynchronous or not
          * @return {void}
          */
@@ -183,7 +190,8 @@
             _info = [];
         },
         /**
-         * Set user ID for this session.
+         * Set user ID for the current session.
+         * @memberof TrackUI
          * @param {object} xhr - XHR response object
          * @return {void}
          */
@@ -198,6 +206,7 @@
         },
         /**
          * Send data for the same (previous) user.
+         * @memberof TrackUI
          * @param {boolean} async - Whether the request should be asynchronous or not
          * @return {void}
          */
@@ -226,7 +235,8 @@
             _info = [];
         },
         /**
-         * A common sending method with CORS support.
+         * Common sending method with CORS support.
+         * @memberof TrackUI
          * @param {object} req - XHR request
          * @return {void}
          */
@@ -235,7 +245,8 @@
             TrackLib.XHR.sendAjaxRequest(req);
         },
         /**
-         * Handles document events.
+         * Handle document events.
+         * @memberof TrackUI
          * @param {object} e - DOM event
          * @return {void}
          */
@@ -247,7 +258,8 @@
             }
         },
         /**
-         * Handles window events.
+         * Handle window events.
+         * @memberof TrackUI
          * @param {object} e - DOM event
          * @return {void}
          */
@@ -256,6 +268,7 @@
         },
         /**
          * Generic callback for event listeners.
+         * @memberof TrackUI
          * @param {object} e - DOM event
          * @return {void}
          */
@@ -283,6 +296,7 @@
         },
         /**
          * Callback for touch event listeners.
+         * @memberof TrackUI
          * @param {object} e - DOM event
          * @return {void}
          */
@@ -298,15 +312,15 @@
         },
         /**
          * Cross-browser way to register the mouse position.
+         * @memberof TrackUI
          * @param {object} e - DOM event
-         * @return {object} pos - Coordinates
-         * @return {integer} pos.x - Horizontal component
-         * @return {integer} pos.y - Vertical component
+         * @return {Point} pos - Coordinates
          */
         getMousePos: function(e) {
             e = TrackLib.Events.fix(e);
 
-            var cx = 0; var cy = 0;
+            var cx = 0;
+            var cy = 0;
             if (e.pageX || e.pageY) {
                 cx = e.pageX;
                 cy = e.pageY;
@@ -317,11 +331,16 @@
             // Sometimes the mouse coordinates are negative (e.g., in Opera)
             if (!cx || cx < 0) cx = 0;
             if (!cy || cy < 0) cy = 0;
-
+            /**
+             * @typedef {object} Point
+             * @property {number} x - The X coordinate
+             * @property {number} y - The Y coordinate
+             */
             return {x: cx, y: cy};
         },
         /**
-         * Fills in a log data row.
+         * Fill in a log data row.
+         * @memberof TrackUI
          * @param {...mixed} args - Any number of arguments
          * @return {void}
          */
@@ -332,6 +351,7 @@
         },
         /**
          * Send remaining data (if any) to the backend server.
+         * @memberof TrackUI
          * @param {object} e - DOM event
          * @return {void}
          */
@@ -354,6 +374,7 @@
         },
         /**
          * Show debug information in the JS console.
+         * @memberof TrackUI
          * @param {...mixed} args - Any number of arguments
          * @return {void}
          */

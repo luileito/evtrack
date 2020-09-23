@@ -2,6 +2,8 @@
 
 /**
  * Auxiliary functions to track the user activity.
+ * Written in plain 'ol JavaScript. No dependencies. Also works in old browsers.
+ * @namespace TrackLib
  * @author Luis Leiva
  * @version 0.3
  * @license Dual licensed under the MIT and GPL licenses.
@@ -9,7 +11,10 @@
 var TrackLib = window.TrackLib || {};
 /**
  * XPath functions.
- * Code adapted from window.js @ http://code.google.com/p/xpathchecker/
+ * Code adapted from `window.js`.
+ * @see http://code.google.com/p/xpathchecker/
+ * @memberof TrackLib
+ * @namespace TrackLib.XPath
  * @author Brian Slesinsky (http://slesinsky.org)
  */
 TrackLib.XPath = {
@@ -96,7 +101,7 @@ TrackLib.XPath = {
     /**
      * Get index of DOM node.
      * @param {object} node - DOM node
-     * @return {integer}
+     * @return {number}
      */
     getNodeIndex: function(node) {
         if (node.nodeType != 1 || node.parentNode == null) return null;
@@ -111,7 +116,7 @@ TrackLib.XPath = {
     /**
      * Get index of text node.
      * @param {object} node - Text node
-     * @return {integer}
+     * @return {number}
      */
     getTextNodeIndex: function(node) {
         var list = this.getChildTextNodes(node.parentNode);
@@ -175,7 +180,9 @@ TrackLib.XPath = {
     },
 };
 /**
- * Ajax handling object.
+ * Ajax handling.
+ * @memberof TrackLib
+ * @namespace TrackLib.XHR
  */
 TrackLib.XHR = {
     /**
@@ -268,11 +275,13 @@ TrackLib.XHR = {
     },
 };
 /**
- * Event handling object.
+ * Event handling.
+ * @memberof TrackLib
+ * @namespace TrackLib.Events
  */
 TrackLib.Events = {
     /**
-     * Adds event listeners unobtrusively.
+     * Add event listeners unobtrusively.
      * @author John Resig (http://ejohn.org)
      * @param {object} obj - Object to add listener(s) to.
      * @param {string} type - Event type.
@@ -292,7 +301,7 @@ TrackLib.Events = {
         }
     },
     /**
-     * Removes event listeners unobtrusively.
+     * Remove event listeners unobtrusively.
      * @author John Resig (http://ejohn.org)
      * @param {object} obj - Object to remove listener(s) from
      * @param {string} type - Event type
@@ -310,7 +319,7 @@ TrackLib.Events = {
         }
     },
     /**
-     * Fixes event handling inconsistencies between browsers.
+     * Normalize event inconsistencies between browsers.
      * @param {object} e - DOM Event
      * @return {object} Fixed event
      */
@@ -354,14 +363,14 @@ TrackLib.Events = {
     },
 };
 /**
- * Dimension handling object.
+ * Dimension handling.
+ * @memberof TrackLib
+ * @namespace TrackLib.Dimension
  */
 TrackLib.Dimension = {
     /**
-     * Gets the browser's window size (aka 'the viewport').
-     * @return {object} dim - Window dimmensions
-     * @return {integer} dim.width
-     * @return {integer} dim.height
+     * Get the browser's window size (aka 'the viewport').
+     * @return {Size} dim - Window dimmensions
      */
     getWindowSize: function() {
         var d = document;
@@ -373,14 +382,16 @@ TrackLib.Dimension = {
             : (d.documentElement && d.documentElement.clientHeight) ? d.documentElement.clientHeight
                 : (d.body && d.body.clientHeight) ? d.body.clientHeight
                     : 0;
-
+        /**
+         * @typedef {object} Size
+         * @property {number} width - The width
+         * @property {number} height - The height
+         */
         return {width: w, height: h};
     },
     /**
-     * Gets the document's size.
-     * @return {object} dim - Document dimensions
-     * @return {integer} dim.width
-     * @return {integer} dim.height
+     * Get the document's size.
+     * @return {Size} dim - Document dimensions
      */
     getDocumentSize: function() {
         var d = document;
@@ -397,9 +408,7 @@ TrackLib.Dimension = {
     },
     /**
      * Gets the max value from both window (viewport's size) and document's size.
-     * @return {object} dim - Viewport dimensions
-     * @return {integer} dim.width
-     * @return {integer} dim.height
+     * @return {Size} dim - Viewport dimensions
      */
     getPageSize: function() {
         var win = this.getWindowSize();
@@ -414,10 +423,12 @@ TrackLib.Dimension = {
 };
 /**
  * Utility methods.
+ * @memberof TrackLib
+ * @namespace TrackLib.Util
  */
 TrackLib.Util = {
     /**
-     * Tests whether a set of URLs come from the same domain.
+     * Test whether a set of URLs come from the same domain.
      * @param {...string} args - Source URLs
      * @return {boolean}
      */
@@ -436,7 +447,7 @@ TrackLib.Util = {
         return sameDomain;
     },
     /**
-     * Gets the domain of a given URL.
+     * Get domain of a given URL.
      * @param {string} url - Source URL
      * @return {string}
      */
@@ -450,7 +461,9 @@ TrackLib.Util = {
         return d;
     },
     /**
-     * Serializes the attributes of a DOM node.
+     * Serialize attributes of a DOM node.
+     * Only *specified* attributes are considered.
+     * @see https://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-637646024
      * @param {object} elem - DOM node
      * @return {string} JSON representation of the node attributes
      */
@@ -469,7 +482,7 @@ TrackLib.Util = {
         return JSON.stringify(obj);
     },
     /**
-     * Serializes object as a query string.
+     * Serialize object as a query string.
      * @param {object} obj - Source Object
      * @return {string} Query string representation of the object
      */
