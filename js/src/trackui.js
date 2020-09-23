@@ -2,11 +2,13 @@
 (function(window) {
     var document = window.document;
 
-    // Define default events, as if they were set in `settings` object
-    var _docEvents = 'mousedown mouseup mousemove mouseover mouseout mousewheel ';
-    _docEvents += 'touchstart touchend touchmove keydown keyup keypress ';
-    _docEvents += 'click dblclick scroll change select submit reset contextmenu cut copy paste';
-    var _winEvents = 'load unload beforeunload blur focus resize error online offline';
+    // Define default events at the document level
+    var _docEvents = 'mousedown mouseup mousemove mouseover mouseout mousewheel wheel';
+    _docEvents += ' touchstart touchend touchmove deviceorientation keydown keyup keypress';
+    _docEvents += ' click dblclick scroll change select submit reset contextmenu cut copy paste';
+    // Define default events at the window level
+    var _winEvents = 'load unload beforeunload blur focus resize error abort online offline';
+    _winEvents += ' storage popstate hashchange pagehide pageshow message beforeprint afterprint';
     // Convert these event lists to actual array lists
     _docEvents = _docEvents.split(' ');
     _winEvents = _winEvents.split(' ');
@@ -39,6 +41,7 @@
          */
         settings: {
             // The server where logs will be stored.
+            // You MUST specify this.
             postServer: '//my.server.org/save.script',
             // The interval (in seconds) to post data to the server.
             postInterval: 30,
