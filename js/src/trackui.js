@@ -275,6 +275,8 @@
         eventHandler: function(e) {
             e = TrackLib.Events.fix(e);
 
+            if ('isTrusted' in e && !e.isTrusted) return;
+
             var timeNow = new Date().getTime();
             var eventName = e.type;
             var register = true;
@@ -302,6 +304,8 @@
          */
         touchHandler: function(e) {
             e = TrackLib.Events.fix(e);
+
+            if ('isTrusted' in e && !e.isTrusted) return;
 
             var touches = e.changedTouches; // better
             if (touches) for (var i = 0, touch; i < touches.length; ++i) {
