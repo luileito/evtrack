@@ -1,9 +1,9 @@
-# evtrack
+# Tracker
 
 Event tracking on websites using plain old JavaScript.
 No third-party libraries or external dependencies. :smiley:
 
-## Usage
+## Operate
 
 * For web pages:
   Just add `load.min.js` to your page (e.g. inside `<head>` element or right before the closing `</body>` tag) and configure tracking options.
@@ -133,7 +133,7 @@ TrackUI.record({
 })
 ```
 
-### Result
+### Outcome
 
 For each browsed page, you'll have in the `logs` directory the following files:
 
