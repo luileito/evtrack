@@ -1,6 +1,6 @@
-# evtrack
+# evtrack 
 
-Event tracking on websites using plain old JavaScript.
+Event tracking on websites using plain solo JavaScript.
 No third-party libraries or external dependencies. :smiley:
 
 ## Usage
