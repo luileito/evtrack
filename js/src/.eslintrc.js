@@ -14,10 +14,10 @@ module.exports = {
     'prefer-spread': 0,
     'no-unused-vars': 1,
     'guard-for-in': 1,
-		'spaced-comment': ["error", "always", {
+    'spaced-comment': ["error", "always", {
       "block": {
         "markers": ["!"],
       },
-		}],
+    }],
   },
 };
