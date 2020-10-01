@@ -1,7 +1,8 @@
 # evtrack
 
 Event tracking on websites using plain old JavaScript.
-No third-party libraries or external dependencies. :smiley:
+No third-party libraries or external dependencies. :smiley:\
+Best website really works ,You guys will Love It
 
 ## Usage
 
@@ -9,7 +10,7 @@ No third-party libraries or external dependencies. :smiley:
   Just add `load.min.js` to your page (e.g. inside `<head>` element or right before the closing `</body>` tag) and configure tracking options.
 
 * For browser extensions:
-  Add `tracklib.min.js` and `trackui.min.js` (in this order) to your `manifest.json` (or similar) and configure tracking options.
+  Add `tracklib.min.js` and `trackui.min.js` (in this ) to your `manifest.json` (or similar) and configure tracking options.
 
 ### Example 1
 
@@ -124,7 +125,7 @@ TrackUI.record({
   // A name that identifies the current task.
   // Useful to filter logs by e.g. tracking campaign ID.
   taskName: "evtrack",
-  // A custom function to execute on each recording tick.
+  // A custom function to execute on each recording .
   callback: null,
   // Whether to dump element attributes together with each recorded event.
   saveAttributes: true,
@@ -183,7 +184,7 @@ If you use this software in any academic project, please cite it as:
 * Leiva, L.A. and Vivó, R. Web Browsing Behavior Analysis and Interactive Hypervideo. _ACM Transactions on the Web_ **7**(4), 2013.
 ```bibtex
 @Article{Leiva13-tweb,
- author   = {Luis A. Leiva and Roberto Viv\'o},
+    = {Luis A. Leiva and Roberto Viv\'o},
  title    = {Web Browsing Behavior Analysis and Interactive Hypervideo},
  journal  = {ACM Transactions on the Web},
  volume   = {7},
