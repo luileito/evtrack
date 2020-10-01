@@ -1,4 +1,4 @@
-# evtrack
+# Evtrack
 
 Event tracking on websites using plain old JavaScript.
 No third-party libraries or external dependencies. :smiley:
@@ -140,7 +140,7 @@ For each browsed page, you'll have in the `logs` directory the following files:
 1. A space-delimited CSV-like file with 8 columns.
 2. An XML file with some metadata.
 
-#### CSV file example
+#### CSV File Example
 
 ```csv
 cursor timestamp xpos ypos event xpath attrs extras
@@ -157,7 +157,7 @@ Where:
 * The `attrs` column indicates the element attributes, if any.
 * The `extras` column is populated with the result of the `callback` setting you've set.
 
-#### XML file example
+#### XML File Example
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
