@@ -104,9 +104,9 @@ TrackLib.XPath = {
      * @return {number}
      */
     getNodeIndex: function(node) {
-        if (node.nodeType != 1 || node.parentNode == null) return null;
+        if (node.nodeType != 1 || node.parentNode == null) return -1;
         var list = this.getChildNodesWithTagName(node.parentNode, node.tagName);
-        if (list.length == 1 && list[0] == node) return null;
+        if (list.length == 1 && list[0] == node) return -1;
         for (var i = 0; i < list.length; i++) {
             if (list[i] == node) return i + 1;
         }
@@ -120,7 +120,7 @@ TrackLib.XPath = {
      */
     getTextNodeIndex: function(node) {
         var list = this.getChildTextNodes(node.parentNode);
-        if (list.length == 1 && list[0] == node) return null;
+        if (list.length == 1 && list[0] == node) return -1;
         for (var i = 0; i < list.length; i++) {
             if (list[i] == node) return i + 1;
         }
