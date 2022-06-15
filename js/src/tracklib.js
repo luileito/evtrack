@@ -1,6 +1,18 @@
 /*! evtrack -- Lib module */
 
 /**
+ * @typedef {object} Size
+ * @property {number} width - The width
+ * @property {number} height - The height
+ */
+
+/**
+ * @typedef {object} Point
+ * @property {number} x - Horizontal position
+ * @property {number} y - Vertical position
+ */
+
+/**
  * Auxiliary functions to track the user activity.
  * Written in plain 'ol JavaScript. No dependencies. Also works in old browsers.
  * @namespace TrackLib
@@ -382,11 +394,7 @@ TrackLib.Dimension = {
             : (d.documentElement && d.documentElement.clientHeight) ? d.documentElement.clientHeight
                 : (d.body && d.body.clientHeight) ? d.body.clientHeight
                     : 0;
-        /**
-         * @typedef {object} Size
-         * @property {number} width - The width
-         * @property {number} height - The height
-         */
+
         return {width: w, height: h};
     },
     /**
@@ -420,6 +428,30 @@ TrackLib.Dimension = {
 
         return {width: w, height: h};
     },
+    /**
+     * Gets the scrolling offsets, relative to the document size.
+     * @return {Point} scroll - Scrolling offsets.
+     */
+    getScrollingPosition: function() {
+      var position = {x:0, y:0};
+      if (typeof window.pageYOffset != 'undefined') {
+        position = {
+          x: window.pageXOffset,
+          y: window.pageYOffset
+        };
+      } else if (typeof document.documentElement.scrollTop != 'undefined') {
+        position = {
+          x: document.documentElement.scrollLeft,
+          y: document.documentElement.scrollTop
+        };
+      } else if (typeof document.body.scrollTop != 'undefined') {
+        position = {
+          x: document.body.scrollLeft,
+          y: document.body.scrollTop
+        };
+      }
+      return position;
+    }
 };
 /**
  * Utility methods.

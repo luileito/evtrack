@@ -292,6 +292,9 @@
                 if (typeof TrackUI.settings.callback === 'function') {
                     extraInfo = JSON.stringify(TrackUI.settings.callback(e));
                 }
+                if (eventName == 'scroll') {
+                    cursorPos = TrackLib.Dimension.getScrollingPosition();
+                }
                 TrackUI.fillInfo(e.id, timeNow, cursorPos.x, cursorPos.y, eventName, elemXpath, elemAttrs, extraInfo);
                 _time = timeNow;
             }
